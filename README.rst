@@ -121,7 +121,7 @@ or
     echo 'alias fitter="source $(pwd)/bellaenv_fitter/bin/activate"' > $(HOME)/.bash_profile
 
 
-Manually Install BELLA Multilaterate
+Install BELLA Multilaterate
 ----
 
 1 - Make a virtual env:
@@ -175,9 +175,9 @@ Usage
 
     - Follow the code and comments to adapt the code to your needs. You might consider changing:
 
-        - Histogram levels
-        - Automatic detection settings.
-        - Fine tuning
+        - Histogram levels - > Make Type III visible or improve contrast.
+        - Automatic detection settings - > Change initial inputs for automatic detection.
+        - Fine tuning of detected points. - > Fix outliers that make unphysical morphologies.
 
     - Run stacked_dyn_spectra_YYYY_MM_dd.py
 
@@ -274,7 +274,7 @@ Usage
         cd PATH/TO/Multilaterate
         python positioner_mapping_parallel.py
 
-    - A file with the uncertainty bg results should be available at **PATH/TO/Multilaterate/Data/bg/**
+    - A file with the uncertainty bg results should be available in **PATH/TO/Multilaterate/Data/YYYY_MM_dd/bg/**
 
 
 3 - In multilat environment open **Multilaterate/bella_triangulation_YYYY_MM_dd.py**
@@ -289,7 +289,7 @@ Usage
         python bella_triangulation_YYYY_MM_dd.py
 
 
-    - A file with the multilateration results should be available at PATH/TO/Multilaterate/Data/
+    - A file with the multilateration results should be available in **PATH/TO/Multilaterate/Data/YYYY_MM_dd/**
 
 4 - In multilat environment open **Multilaterate/bella_plotter.py**
 
