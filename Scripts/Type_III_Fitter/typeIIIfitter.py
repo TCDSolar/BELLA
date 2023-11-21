@@ -181,6 +181,143 @@ def mkdirectory(directory):
 
     return dir
 
+# def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
+#     """sdauto picks n number of points from max point as initial guess for standard deviation"""
+#     """ Recomended sigma 1 or 2"""
+#     """ h3 - skewness ,  h4 - kurtosis"""
+#     N = len(y)
+#     err = np.ones(N)
+#
+#     if not type(sdauto) is int:
+#         raise TypeError("sdauto: Only integers are allowed")
+#     # Fit the Gauss-Hermite model
+#     # Initial estimates for A, xo, s, h3, h4, z0
+#
+#     Aguess = np.max(y)
+#     xguess = x[np.where(y==Aguess)[0][0]]
+#     sguess = xguess - x[np.where(y==Aguess)[0][0]-sdauto]
+#     # h3guess = h3guess
+#     # h4guess = h4guess
+#     # z0guess = z0guess
+#     p0 = [Aguess, xguess, sguess, h3guess, h4guess, z0guess]
+#     fitterGH = kmpfit.Fitter(residuals=residualsGH, data=(x, y, err))
+#     # fitterGH.parinfo = [{}, {}, {}, {}, {}]  # Take zero level fixed in fit
+#     fitterGH.fit(params0=p0)
+#     print("\n========= Fit results Gaussian profile ==========")
+#     print("Initial params:", fitterGH.params0)
+#     print("Params:        ", fitterGH.params)
+#     print("Iterations:    ", fitterGH.niter)
+#     print("Function ev:   ", fitterGH.nfev)
+#     print("Uncertainties: ", fitterGH.xerror)
+#     print("dof:           ", fitterGH.dof)
+#     print("chi^2, rchi2:  ", fitterGH.chi2_min, fitterGH.rchi2_min)
+#     print("stderr:        ", fitterGH.stderr)
+#     print("Status:        ", fitterGH.status)
+#
+#     A, x0, s, h3, h4, z0GH = fitterGH.params
+#
+#
+#     # xm, ampmax, area, mean, dispersion, skewness, kurtosis
+#     res = hermite2gauss(fitterGH.params[:-1], fitterGH.stderr[:-1])
+#     print("Gauss-Hermite max=%g at x=%g" % (res['amplitude'], res['xmax']))
+#     print("Area      :", res['area'], '+-', res['d_area'])
+#     print("Mean (X0) :", res['mean'], '+-', res['d_mean'])
+#     print("Dispersion:", res['dispersion'], '+-', res['d_dispersion'])
+#     print("Skewness  :", res['skewness'], '+-', res['d_skewness'])
+#     print("Kurtosis  :", res['kurtosis'], '+-', res['d_kurtosis'])
+#
+#     xd = np.linspace(x.min(), x.max(), 500)
+#
+#     xd_dt = timestamp2datetime(xd)
+#     x_date = timestamp2datetime(x)
+#
+#
+#     yfit = funcGH(fitterGH.params, xd)  # signal model fit
+#     ybg = [z0GH] * len(xd)       # background
+#
+#     maxfit_idx = np.where(yfit==np.max(yfit))[0][0]
+#
+#     supported_methods = ["sigma", "hwhm", "thirdmax", "peak"]
+#     if method == "sigma":
+#         # Get an n sigma (standard distributions) off the peak
+#         xrise = xd[maxfit_idx] - sigma*s
+#     elif method == "hwhm":
+#         # half width half maximum LHS
+#         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+#         # this is ok because we are under the resolution of the instrument
+#         ycheck = yfit[0:maxfit_idx]
+#         halfmax = (yfit[maxfit_idx] - z0GH)/2 + z0GH
+#         y_hwhm,y_hwhm_idx = find_nearest(ycheck,halfmax)
+#         xrise = xd[y_hwhm_idx]
+#     elif method == "thirdmax":
+#         # half width third maximum LHS
+#         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+#         # this is ok because we are under the resolution of the instrument
+#         ycheck = yfit[0:maxfit_idx]
+#         halfmax = (yfit[maxfit_idx] - z0GH)/3 + z0GH
+#         y_hwhm,y_hwhm_idx = find_nearest(ycheck,halfmax)
+#         xrise = xd[y_hwhm_idx]
+#
+#     elif method == "peak":
+#         xrise = xd[maxfit_idx]
+#
+#     else:
+#         raise AttributeError(f"method not supported. supported methods: {supported_methods}")
+#
+#
+#
+#     yrise = funcGH(fitterGH.params, xrise)
+#
+#     xrise = datetime.fromtimestamp(xrise)
+#
+#
+#
+#     # Plot the result
+#     showparamstitle = False
+#
+#     plt.rcParams.update({'font.size': 15})
+#     plt.rc('legend', fontsize=15)
+#     fig1 = plt.figure(figsize=(9, 6), dpi=150)
+#     frame1 = fig1.add_subplot(1, 1, 1)
+#     frame1.plot(x_date, y, 'bo', label="data")
+#     label = "G-H Model"
+#     frame1.plot(xd_dt, yfit, 'c', ls='--', label=label)
+#     frame1.plot(xd_dt,ybg , "y", ls="--", label='G-H Background')
+#     frame1.set_xlabel(f"{x_date[0].year}/{x_date[0].month:02}/{x_date[0].day:02} [UTC]",fontsize=15)
+#     frame1.set_ylabel("Relative power",fontsize=15)
+#     title = ""#"Profile with Gauss-Hermite model\n"
+#     t = (res['area'], res['mean'], res['dispersion'], res['skewness'], res['kurtosis'])
+#     title += "GH: $\gamma_{gh}$=%.1f $x_{0_{gh}}$=%.1f $\sigma_{gh}$ = %.2f $\\xi_1$=%.2f  $\\xi_f$=%.2f\n" % t
+#     title += f"freq: {freq}MHz"
+#     frame1.plot(xrise, yrise, 'r*', label="detection")
+#
+#     frame1.grid(False)
+#     leg = plt.legend(loc='upper right')
+#     frame1.add_artist(leg)
+#
+#     if showparamstitle == True:
+#         frame1.set_title(title, fontsize=15)
+#     else:
+#         plt.text(.01, .99, f"freq: {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+#
+#     frame1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+#     plt.gcf().autofmt_xdate()
+#
+#
+#
+#
+#     if saveplots==True:
+#         mkdirectory(dir)
+#         fid = f"{dir}/{fname}.jpg"
+#         plt.gcf().savefig(fid, dpi=150)
+#         print(f"{fid} saved")
+#
+#     if plotresults == True:
+#         plt.show(block=False)
+#     else:
+#         plt.close()
+#
+#     return [xrise, yrise]
 def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
     """sdauto picks n number of points from max point as initial guess for standard deviation"""
     """ Recomended sigma 1 or 2"""
@@ -279,7 +416,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
     plt.rc('legend', fontsize=15)
     fig1 = plt.figure(figsize=(9, 6), dpi=150)
     frame1 = fig1.add_subplot(1, 1, 1)
-    frame1.plot(x_date, y, 'bo', label="data")
+    frame1.plot(x_date, y, 'bo')#, label="Data")
     label = "G-H Model"
     frame1.plot(xd_dt, yfit, 'c', ls='--', label=label)
     frame1.plot(xd_dt,ybg , "y", ls="--", label='G-H Background')
@@ -288,8 +425,22 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
     title = ""#"Profile with Gauss-Hermite model\n"
     t = (res['area'], res['mean'], res['dispersion'], res['skewness'], res['kurtosis'])
     title += "GH: $\gamma_{gh}$=%.1f $x_{0_{gh}}$=%.1f $\sigma_{gh}$ = %.2f $\\xi_1$=%.2f  $\\xi_f$=%.2f\n" % t
+
     title += f"freq: {freq}MHz"
-    frame1.plot(xrise, yrise, 'r*', label="detection")
+
+    frame1.plot(xrise, yrise, 'r*')#, label="Detection")
+    frame1.axvline(x=xrise, color='red', linestyle='--')
+    # plt.text(.11, .45, f"Detection", ha='left', va='top', transform=frame1.transAxes)
+
+    # Add an arrow annotation
+    arrow_props = {
+        'arrowstyle': '->',  # Arrow style
+        'color': 'red',  # Arrow color
+        'linewidth': 2,  # Arrow linewidth
+    }
+
+    ymidpoint = (yfit.max() + yfit.min())/2
+    frame1.annotate('Detection', xy=(xrise, ymidpoint), xytext=(datetime.fromtimestamp(xd[3]), ymidpoint), arrowprops=arrow_props)
 
     frame1.grid(False)
     leg = plt.legend(loc='upper right')
@@ -298,13 +449,18 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
     if showparamstitle == True:
         frame1.set_title(title, fontsize=15)
     else:
-        plt.text(.01, .99, f"freq: {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+        freq_lab = f"{freq:.2f}"
+        if freq_lab == "0.28":
+            plt.text(.01, .95, f"(a) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+        elif freq_lab == "1.42":
+            plt.text(.01, .95, f"(b) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+        elif freq_lab == "1.98":
+            plt.text(.01, .95, f"(c) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+        else:
+            plt.text(.01, .95, f"freq: {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
 
     frame1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     plt.gcf().autofmt_xdate()
-
-
-
 
     if saveplots==True:
         mkdirectory(dir)
@@ -318,6 +474,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
         plt.close()
 
     return [xrise, yrise]
+
 
 def auto_rise_times(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess=1,method="sigma", plotresults=False, saveplots=False):
 

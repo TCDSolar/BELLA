@@ -188,18 +188,17 @@ Usage
 
     - Once the stacked file has run. There should be two files generated in PATH/TO/Type_III_Fitter/Data/TypeIII/YYYY_MM_dd. These files are the extracted data, ready for multilateration.
 
-    - The output of stacked should show all the dynamic spectra:
+    - The output of stacked should show all the dynamic spectra with solid black line as the fit and dashed lines representing the cadence chosen for the multilateration:
 
     .. image:: ./Figures_readme/stackedoutput.png
-        :height: 100 %
-        :width: 100 %
-        :scale: 10 cm
-        :alt: Output from stacked_dyn_spectra_YYYY_MM_dd.py
-        :align: right
-
-
-    .. image:: ./Figures_readme/stackedoutput.jpg
         :align: center
+
+    - A directory showing all the lightcurve fits and automatic detections should have been generated in PATH/TO/Type_III_Fitter/lightcurves:
+
+    .. image:: ./Figures_readme/STEREOA_sigma_0.98.jpg
+        :align: center
+
+
 
 2 - In **multilat** environment open **Multilaterate/positioner_mapping_parallel.py** to generate background uncertainty map.
 
