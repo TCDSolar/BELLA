@@ -188,6 +188,19 @@ Usage
 
     - Once the stacked file has run. There should be two files generated in PATH/TO/Type_III_Fitter/Data/TypeIII/YYYY_MM_dd. These files are the extracted data, ready for multilateration.
 
+    - The output of stacked should show all the dynamic spectra:
+
+    .. image:: ./Figures_readme/stackedoutput.png
+        :height: 100 %
+        :width: 100 %
+        :scale: 10 cm
+        :alt: Output from stacked_dyn_spectra_YYYY_MM_dd.py
+        :align: right
+
+
+    .. image:: ./Figures_readme/stackedoutput.jpg
+        :align: center
+
 2 - In **multilat** environment open **Multilaterate/positioner_mapping_parallel.py** to generate background uncertainty map.
 
     - Select the date. If "surround", "test" or "manual" are selected in date string you may manually input any location for any amount of spacecraft. Note: surround is a particular orbital configuration, see https://www.dias.ie/surround/ for more information.
