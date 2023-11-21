@@ -307,6 +307,12 @@ Usage
 
     - A file with the multilateration results should be available in **PATH/TO/Multilaterate/Data/YYYY_MM_dd/**
 
+    - All the traceplots from the multilateration should be available at **PATH/TO/Multilaterate/Traceplots/**
+
+    .. image:: ./Figures_readme/traceplot_output.jpg
+        :align: center
+
+
 4 - In multilat environment open **Multilaterate/bella_plotter.py**
 
     - Follow the code and adjust settings accordingly. Make sure that the data filenames are correct.

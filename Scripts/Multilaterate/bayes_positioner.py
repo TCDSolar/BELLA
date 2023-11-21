@@ -184,6 +184,8 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         wspace = 0.166  # the amount of width reserved for blank space between subplots
         hspace = 0.498  # the amount of height reserved for white space between subplots
 
+        from scipy.stats import norm
+        csfont = {'fontname': 'Times New Roman'}
 
         ax = az.plot_trace(trace, compact=False,var_names=('x','v','t0'), figsize=(11,9))
         plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
@@ -251,10 +253,10 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         ax[2, 1].title.set_text('')
         ax[3, 1].title.set_text('')
 
-        ax[0, 0].set_xlabel('HEE - X ($R_{\odot}$)', fontsize=15)
-        ax[1, 0].set_xlabel('HEE - Y ($R_{\odot}$)', fontsize=15)
-        ax[2, 0].set_xlabel('v (c normalised)', fontsize=15)
-        ax[3, 0].set_xlabel('t0 (s)', fontsize=15)
+        ax[0, 0].set_xlabel('HEE - X ($R_{\odot}$)')
+        ax[1, 0].set_xlabel('HEE - Y ($R_{\odot}$)')
+        ax[2, 0].set_xlabel('v (c normalised)')
+        ax[3, 0].set_xlabel('t0 (s)')
 
 
 
@@ -266,10 +268,24 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         # ax[0, 0].yaxis.set_ticks([0, 1])
 
 
-        ax[0, 1].set_xlabel('HEE - X sampling', fontsize=15)
-        ax[1, 1].set_xlabel('HEE - Y sampling', fontsize=15)
-        ax[2, 1].set_xlabel('v sampling', fontsize=15)
-        ax[3, 1].set_xlabel('t0 sampling', fontsize=15)
+        ax[0, 1].set_xlabel('HEE - X sampling')
+        ax[1, 1].set_xlabel('HEE - Y sampling')
+        ax[2, 1].set_xlabel('v sampling')
+        ax[3, 1].set_xlabel('t0 sampling')
+
+        # ax[0, 0].text(0.01, 0.78, "(a)", fontsize=25, transform=ax[0, 0].transAxes)
+        # ax[1, 0].text(0.01, 0.78, "(b)", fontsize=25, transform=ax[1, 0].transAxes)
+        # ax[2, 0].text(0.01, 0.78, "(c)", fontsize=25, transform=ax[2, 0].transAxes)
+        # ax[3, 0].text(0.01, 0.78, "(d)", fontsize=25, transform=ax[3, 0].transAxes)
+
+        ax[0, 0].tick_params(axis='both', which='major', labelsize=15)
+        ax[1, 0].tick_params(axis='both', which='major', labelsize=15)
+        ax[2, 0].tick_params(axis='both', which='major', labelsize=15)
+        ax[3, 0].tick_params(axis='both', which='major', labelsize=15)
+        ax[0, 1].tick_params(axis='both', which='major', labelsize=15)
+        ax[1, 1].tick_params(axis='both', which='major', labelsize=15)
+        ax[2, 1].tick_params(axis='both', which='major', labelsize=15)
+        ax[3, 1].tick_params(axis='both', which='major', labelsize=15)
 
         scale_x = R_sun.value
 
@@ -330,6 +346,7 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
                 plt.savefig(direct + f"/traceplot_{traceplotfn}", bbox_inches='tight', pad_inches=0.01, dpi=300)
                 print(f"saved {direct}/traceplot_{traceplotfn}")
 
+
         if showplot==True:
             plt.show(block=False)
         else:
@@ -360,7 +377,6 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         else:
             plt.close()
     return mu, sd, t1_pred, trace, summary, t_emission, v_analysis
-
 
 
 if __name__ == "__main__":
