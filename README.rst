@@ -199,7 +199,6 @@ Usage
         :align: center
 
 
-
 2 - In **multilat** environment open **Multilaterate/positioner_mapping_parallel.py** to generate background uncertainty map.
 
     - Select the date. If "surround", "test" or "manual" are selected in date string you may manually input any location for any amount of spacecraft. Note: surround is a particular orbital configuration, see https://www.dias.ie/surround/ for more information.
@@ -288,6 +287,11 @@ Usage
 
     - A file with the uncertainty bg results should be available in **PATH/TO/Multilaterate/Data/YYYY_MM_dd/bg/**
 
+    - If the showfigure=True then your ouput should look like:
+
+    .. image:: ./Figures_readme/bayes_positioner_map_median_-250_250_-250_250_10_10_3.jpg
+        :align: center
+
 
 3 - In multilat environment open **Multilaterate/bella_triangulation_YYYY_MM_dd.py**
 
@@ -314,6 +318,8 @@ Usage
         cd PATH/TO/Multilaterate
         python bella_plotter.py
 
+    .. image:: ./Figures_readme/bellaplotteroutput.png
+    :align: center
 
 
 Documentation
