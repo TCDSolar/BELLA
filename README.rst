@@ -319,7 +319,7 @@ Usage
         python bella_plotter.py
 
     .. image:: ./Figures_readme/bellaplotteroutput.png
-    :align: center
+        :align: center
 
 
 Documentation
