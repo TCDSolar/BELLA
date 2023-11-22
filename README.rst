@@ -163,7 +163,7 @@ Usage
 
     -  Select date and time range. The code has been tested to run with leadingedge. (Running backbone might need the code to be updated.)
 
-    .. code-block:: 
+    .. code-block:: python
 
         YYYY = 2012
         MM = 6
