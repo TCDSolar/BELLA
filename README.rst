@@ -74,7 +74,7 @@ Install BELLA Type III Fitter
 
 .. code-block::
 
-    python -m venv ./bellaenv_fitter
+    python3.8 -m venv ./bellaenv_fitter
     source ./bellaenv_fitter/bin/activate
 
 2 - Install HDF5:
@@ -133,7 +133,7 @@ Install BELLA Multilaterate
 
 .. code-block::
 
-    python -m venv ./bellaenv_multilat
+    python3.8 -m venv ./bellaenv_multilat
     source ./bellaenv_multilat/bin/activate
 
 2 - Install packages via pip:
@@ -163,7 +163,7 @@ Usage
 
     -  Select date and time range. The code has been tested to run with leadingedge. (Running backbone might need the code to be updated.)
 
-    .. code-block::
+    .. code-block:: 
 
         YYYY = 2012
         MM = 6
