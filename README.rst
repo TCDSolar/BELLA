@@ -70,16 +70,16 @@ You must install virtual environments with python 3.8.
 Install BELLA Type III Fitter
 ----
 
-1 - Make a virtual env:
+1 - Make a virtual env: 
 
-.. code-block::
+.. code-block:: bash
 
     python3.8 -m venv ./bellaenv_fitter
     source ./bellaenv_fitter/bin/activate
 
 2 - Install HDF5:
 
-.. code-block::
+.. code-block:: bash
 
         brew install hdf5
 
@@ -88,7 +88,7 @@ See https://github.com/HDFGroup/hdf5 for other OS.
 
 3 - Install the following packages:
 
-.. code-block::
+.. code-block:: bash
 
     pip install -r requirements_fitter.txt
 
@@ -100,7 +100,7 @@ their local instructions. Note: "pip install kapteyn" gives error:
 
 https://www.astro.rug.nl/software/kapteyn/intro.html#installinstructions
 
-.. code-block::
+.. code-block:: bash
 
     pip install https://www.astro.rug.nl/software/kapteyn/kapteyn-3.4.tar.gz
 
@@ -109,19 +109,19 @@ Note: If installation of Kapteyn gives a Numpy error make sure Numpy was depreca
 5 - Install radiospectra via pip. Note the current version of radiospectra gives error when running BELLA,
 for now install this stable version:
 
-.. code-block::
+.. code-block:: bash
 
     pip install git+https://github.com/samaloney/radiospectra.git@6c1faa39d9eba52baec7f7bdc75966e5d8da3b81
 
 6 - (Optional) Add alias to .bashrc // .bash_profile
 
-.. code-block::
+.. code-block:: bash
 
     echo 'alias fitter="source $(pwd)/bellaenv_fitter/bin/activate"' > $(HOME)/.bashrc
 
 or
 
-.. code-block::
+.. code-block:: bash
 
     echo 'alias fitter="source $(pwd)/bellaenv_fitter/bin/activate"' > $(HOME)/.bash_profile
 
@@ -131,27 +131,27 @@ Install BELLA Multilaterate
 
 1 - Make a virtual env:
 
-.. code-block::
+.. code-block:: bash
 
     python3.8 -m venv ./bellaenv_multilat
     source ./bellaenv_multilat/bin/activate
 
 2 - Install packages via pip:
 
-.. code-block::
+.. code-block:: bash
 
     pip install -r requirements_multilat.txt
 
 
 3 - (Optional) Add alias to .bashrc // .bash_profile
 
-.. code-block::
+.. code-block:: bash
 
     echo 'alias multilat="source $(pwd)/bellaenv_multilat/bin/activate"' > $(HOME)/.bashrc
 
 or
 
-.. code-block::
+.. code-block:: bash
 
     echo 'alias multilat="source $(pwd)/bellaenv_multilat/bin/activate"' > $(HOME)/.bash_profile
 
@@ -164,7 +164,6 @@ Usage
     -  Select date and time range. The code has been tested to run with leadingedge. (Running backbone might need the code to be updated.)
 
     .. code-block:: python
-        pygments_style = 'sphinx'
 
         YYYY = 2012
         MM = 6
@@ -187,7 +186,7 @@ Usage
 
     - Run stacked_dyn_spectra_YYYY_MM_dd.py
 
-    .. code-block::
+    .. code-block:: bash
 
         cd PATH/TO/Type_III_Fitter
         python stacked_dyn_spectra_YYYY_MM_dd.py
@@ -209,7 +208,7 @@ Usage
 
     - Select the date. If "surround", "test" or "manual" are selected in date string you may manually input any location for any amount of spacecraft. Note: surround is a particular orbital configuration, see https://www.dias.ie/surround/ for more information.
 
-    .. code-block::
+    .. code-block:: python
 
         day = 7
         month = 6
@@ -251,14 +250,14 @@ Usage
 
     - Select the spacecraft. Note for this particular date we use "earth" instead of "wind". The reason is Wind ephemeris is not available prior to A.D. 2019-OCT-08 00:01:09.1823 TD on Horizons. So 99% of Sun-Earth distance is assumed.
 
-    .. code-block::
+    .. code-block:: python
 
             solarsystem = solarmap.get_sc_coord(date=[year, month, day], objects=["stereo_b", "stereo_a", "earth"])
             stations_rsun = np.array(solarsystem.locate_simple())
 
     Redefine earth as Wind.
 
-    .. code-block::
+    .. code-block:: python
 
         spacecraft = ["stereo_b", "stereo_a", "wind"] # redefining wind as the name of the spacecraft
         stations_rsun[2][0] = 0.99 * stations_rsun[2][0]
@@ -266,7 +265,7 @@ Usage
 
     - Make the grid. **CAREFULLY** make your grid in Rsun units. The finer the grid (smaller xres) the longer it will take to run. An estimate of how long the code will take to run will be shown. You may improve this estimate by changing the time per loop "tpl_l" and "tpl_h" based on your machine performance.
 
-    .. code-block::
+    .. code-block:: python
 
         # Making grid
         xrange = [-250,250]
@@ -279,14 +278,14 @@ Usage
 
     - Select the cadence. A smaller cadence will lead to lower uncertainty results but will also lead to divergencies. Here we pick the conservative 60s cadence.
 
-    .. code-block::
+    .. code-block:: python
 
         cadence = 60
 
 
     - Run **positioner_mapping_parallel.py**. Depending on your grid size, resolution and machine specs this step may take a few hours.
 
-    .. code-block::
+    .. code-block:: bash
 
         cd PATH/TO/Multilaterate
         python positioner_mapping_parallel.py
@@ -305,7 +304,7 @@ Usage
 
     - Run **bella_triangulation_YYYY_MM_dd.py**. This step may take from minutes to hours depending on your frequency range and resolution.
 
-    .. code-block::
+    .. code-block:: bash
 
         cd PATH/TO/Multilaterate
         python bella_triangulation_YYYY_MM_dd.py
@@ -325,7 +324,7 @@ Usage
 
     - Run bella_plotter.py
 
-    .. code-block::
+    .. code-block:: bash
 
         cd PATH/TO/Multilaterate
         python bella_plotter.py
@@ -340,7 +339,7 @@ BELLA uses a class in **bayes_positioner.py** called **BayesianTOAPositioner** a
 This class sets up a context manager for pymc3. This is where you can define your prior distributions.
 Note v can be a Normal Distribution or Truncated Normal depending on whether you want to test if v is converging at c or whether you want to make c a limit.
 
-.. code-block::
+.. code-block:: python
 
             with pm.Model():  # CONTEXT MANAGER
 
@@ -390,7 +389,7 @@ WARNING: always import pymc3 before importing theano. If theano is imported firs
 WARNING: theano's cache might fill up. This usually happens when running several processes in parallel. To fix this run
 this in your bash shell:
 
-.. code-block::
+.. code-block:: bash
 
     theano-cache purge
 
