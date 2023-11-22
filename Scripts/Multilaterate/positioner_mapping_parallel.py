@@ -850,7 +850,7 @@ if __name__ == "__main__":
     yres = xres
     xmapaxis = np.arange(xrange[0], xrange[1], xres)
     ymapaxis = np.arange(yrange[0], yrange[1], yres)
-    cadence = 30
+    cadence = 60
 
     pixels0 = len(xmapaxis)*len(ymapaxis)
     print(f" Pixels : {pixels0}")
@@ -967,7 +967,7 @@ if __name__ == "__main__":
 
 
         results = Parallel(n_jobs=coresforloop, verbose=100)(delayed(parallel_pos_map)(i, j, stations=stations, xrange=xrange,
-                                                                                       yrange=yrange,xres=xres,yres=yres,t_cadence = cadence, figdir=f"./traceplots",
+                                                                                       yrange=yrange, xres=xres, yres=yres, t_cadence=cadence, figdir=f"./traceplots",
                                                                                        date_str=date_str) for i in xmapaxis for j in ymapaxis)
         delta_obs=np.array(results)[:,0]
         flaggedpoints = np.array(results)[:,1:]

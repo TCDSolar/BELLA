@@ -499,7 +499,7 @@ if __name__ == "__main__":
     showtracked = True
     showscatter = True
     showparkerspirals = True
-    savefigs = False
+    savefigs = True
 
     # generate some test data
     # np.random.seed(1)
@@ -587,7 +587,7 @@ if __name__ == "__main__":
         fig, ax = plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=True )
 
     if showscatter:
-        fig, ax = plot_tracked_typeIII(fig, ax, trackedtypeIII_scatter, confidence=True )
+        fig, ax = plot_tracked_typeIII(fig, ax, trackedtypeIII_scatter, confidence=True, showcolorbar=False)
 
     # PARKER SPIRALS
     # fig, ax = plot_parker_spiral(fig, ax, v_sw=310, phi_sw=30)
@@ -607,21 +607,22 @@ if __name__ == "__main__":
     plt.show(block = False)
 
     if savefigs == True:
+        dir = mkdirectory("./Figures/")
         if trackedfile[-11:-4] != 'SCATTER':
-            plt.savefig('BELLA_map0.png', dpi=300)
+            plt.savefig(dir+'BELLA_map0.png', dpi=300)
         else:
-            plt.savefig('BELLA_map0_SCATTER.png', dpi=300)
-
-        ax.get_legend().remove()
-        xmin, xmax = -5, 155
-        ymin, ymax = -40, 40
-        ax.set_xlim(xmin, xmax)
-        ax.set_ylim(ymin, ymax)
-        plt.draw()
-        if trackedfile[-11:-4] != 'SCATTER':
-            plt.savefig('BELLA_map1.png', dpi=300)
-        else:
-            plt.savefig('BELLA_map1_SCATTER.png', dpi=300)
+            plt.savefig(dir+'BELLA_map0_SCATTER.png', dpi=300)
+        #
+        # ax.get_legend().remove()
+        # xmin, xmax = -5, 155
+        # ymin, ymax = -40, 40
+        # ax.set_xlim(xmin, xmax)
+        # ax.set_ylim(ymin, ymax)
+        # plt.draw()
+        # if trackedfile[-11:-4] != 'SCATTER':
+        #     plt.savefig('BELLA_map1.png', dpi=300)
+        # else:
+        #     plt.savefig('BELLA_map1_SCATTER.png', dpi=300)
 
 
 

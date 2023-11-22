@@ -31,7 +31,7 @@ from radiospectra import net #let Fido know about the radio clients
 from radiospectra.spectrogram import Spectrogram # in the process of updating old spectrogram
 
 import cdflib
-from spacepy import pycdf
+# from spacepy import pycdf
 
 # from rpw_mono.thr.hfr.reader import read_hfr_autoch
 
@@ -89,7 +89,7 @@ def backSub(data, percentile=1):
 
 def solo_rpw_hfr(filepath):
     rpw_l2_hfr = cdflib.CDF(filepath)
-    l2_cdf_file = pycdf.CDF(filepath)
+    # l2_cdf_file = pycdf.CDF(filepath)
 
     # times = l2_cdf_file['Epoch']
     # times = times[:]

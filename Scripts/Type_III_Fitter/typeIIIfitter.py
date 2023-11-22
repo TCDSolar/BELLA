@@ -35,7 +35,6 @@ def gausshermiteh3h4(x, A, x0, s, h3, h4):
     E = A * np.exp(-0.5 * F * F) * (1.0 + h3 * F * (c3 * F * F + c1) + h4 * (c0 + F * F * (c2 + c4 * F * F)))
     return E
 
-
 def hermite2gauss(par, dpar):
     # ------------------------------------------------------------
     # Convert Gauss-Hermite parameters to Gauss(like)parameters.
@@ -103,7 +102,6 @@ def hermite2gauss(par, dpar):
                d_dispersion=d_dispersion, d_skewness=d_skewness, d_kurtosis=d_kurtosis)
     return res
 
-
 def voigt(x, y):
     # The Voigt function is also the real part of
     # w(z) = exp(-z^2) erfc(iz), the complex probability function,
@@ -113,7 +111,6 @@ def voigt(x, y):
     I = wofz(z).real
     return I
 
-
 def Voigt(nu, alphaD, alphaL, nu_0, A):
     # The Voigt line shape in terms of its physical parameters
     f = np.sqrt(ln2)
@@ -121,7 +118,6 @@ def Voigt(nu, alphaD, alphaL, nu_0, A):
     y = alphaL / alphaD * f
     V = A * f / (alphaD * np.sqrt(np.pi)) * voigt(x, y)
     return V
-
 
 def funcV(p, x):
     # Compose the Voigt line-shape

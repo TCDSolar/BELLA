@@ -66,6 +66,7 @@ It is also recommended to make aliases in order to quickly change between enviro
 Some packages such as Kapteyn or pyspedas, may give an error when installing in python different than python 3.8.
 You must install virtual environments with python 3.8.
 
+
 Install BELLA Type III Fitter
 ----
 
@@ -73,7 +74,7 @@ Install BELLA Type III Fitter
 
 .. code-block::
 
-    python3.8 -m venv ./bellaenv_fitter
+    python -m venv ./bellaenv_fitter
     source ./bellaenv_fitter/bin/activate
 
 2 - Install HDF5:
@@ -82,11 +83,14 @@ Install BELLA Type III Fitter
 
         brew install hdf5
 
+See https://github.com/HDFGroup/hdf5 for other OS.
+
+
 3 - Install the following packages:
 
 .. code-block::
 
-    pip install cython numpy h5py solarmap pyspedas
+    pip install -r requirements_fitter.txt
 
 
 4 - Install Kapteyn:
@@ -100,6 +104,7 @@ https://www.astro.rug.nl/software/kapteyn/intro.html#installinstructions
 
     pip install https://www.astro.rug.nl/software/kapteyn/kapteyn-3.4.tar.gz
 
+Note: If installation of Kapteyn gives a Numpy error make sure Numpy was deprecated to numpy==1.22
 
 5 - Install radiospectra via pip. Note the current version of radiospectra gives error when running BELLA,
 for now install this stable version:
@@ -128,14 +133,14 @@ Install BELLA Multilaterate
 
 .. code-block::
 
-    python3.8 -m venv ./bellaenv_multilat
+    python -m venv ./bellaenv_multilat
     source ./bellaenv_multilat/bin/activate
 
 2 - Install packages via pip:
 
 .. code-block::
 
-    pip install Theano-PyMC astropy joblib solarmap termcolor pymc3
+    pip install -r requirements_multilat.txt
 
 
 3 - (Optional) Add alias to .bashrc // .bash_profile
