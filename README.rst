@@ -113,7 +113,13 @@ for now install this stable version:
 
     pip install git+https://github.com/samaloney/radiospectra.git@6c1faa39d9eba52baec7f7bdc75966e5d8da3b81
 
-6 - (Optional) Add alias to .bashrc // .bash_profile
+6 - Install pyspedas via pip. Install this specific version.
+
+.. code-block:: bash
+
+    pip install git+https://github.com/STBadman/pyspedas
+
+7 - (Optional) Add alias to .bashrc // .bash_profile
 
 .. code-block:: bash
 
