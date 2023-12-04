@@ -338,9 +338,8 @@ if __name__=="__main__":
     #
     background_subtraction = True
     leadingedge = True
-    backbone = True
+    backbone = False
     plot_residuals = False
-    showGP =True
     figdir = mkdirectory(f"Figures/{YYYY}_{MM:02}_{dd:02}")
 
     mintime = datetime(YYYY, MM, dd, HH_0,mm_0)
@@ -698,105 +697,6 @@ if __name__=="__main__":
             plt.show(block=False)
 
 
-
-
-    # ---------------------------------------------------------------- #
-    # Goniopolarimetric data
-    # ---------------------------------------------------------------- #
-
-
-    # Wind and STEREO GP data
-    fname_waves_GP = f"./Data/GP/wi_wa_rad1_l3_df_20120607_v02.cdf"
-    fname_swavesA_l_GP = f"./Data/GP/sta_l3_wav_lfr_20120607_v01.cdf"
-    fname_swavesA_h_GP = f"./Data/GP/sta_l3_wav_hfr_20120607_v01.cdf"
-    fname_swavesB_l_GP = f"./Data/GP/stb_l3_wav_lfr_20120607_v01.cdf"
-    fname_swavesB_h_GP = f"./Data/GP/stb_l3_wav_hfr_20120607_v01.cdf"
-
-
-    cdf_waves_GP = pycdf.CDF(fname_waves_GP)
-    cdf_swavesA_l_GP = pycdf.CDF(fname_swavesA_l_GP)
-    cdf_swavesA_h_GP = pycdf.CDF(fname_swavesA_h_GP)
-    cdf_swavesB_l_GP = pycdf.CDF(fname_swavesB_l_GP)
-    cdf_swavesB_h_GP = pycdf.CDF(fname_swavesB_h_GP)
-
-    waves_GP_freqs = np.array(cdf_waves_GP.get('FREQUENCY'))/1E6    # FREQUENCY: CDF_REAL4[29124]
-    waves_GP_lat = np.array(cdf_waves_GP.get('WAVE_COLATITUDE_SRF'))    # WAVE_COLATITUDE_SRF: CDF_REAL4[29124]
-    waves_GP_az = np.array(cdf_waves_GP.get('WAVE_AZIMUTH_SRF'))    # WAVE_AZIMUTH_SRF: CDF_REAL4[29124]
-    waves_GP_epoch = np.array(cdf_waves_GP.get('Epoch'))# Epoch: CDF_TIME_TT2000[29124]
-
-    waves_GP_freqs_uniq = np.unique(waves_GP_freqs)
-
-
-
-    swavesA_h_GP_freqs = np.array(cdf_swavesA_h_GP.get('FREQUENCY'))/1E6  # MHz
-    swavesA_h_GP_epoch = np.array(cdf_swavesA_h_GP.get('Epoch'))
-    swavesA_h_GP_lat = np.array(cdf_swavesA_h_GP.get('WAVE_COLATITUDE_HEE'))
-    swavesA_h_GP_az = np.array(cdf_swavesA_h_GP.get('WAVE_AZIMUTH_HEE'))
-    swavesA_GP_loc = np.array(cdf_swavesA_h_GP.get('SC_POS_HEE'))*1E3/R_sun.value
-    swavesA_GP_flux = np.array(cdf_swavesA_h_GP.get('PSD_FLUX'))
-
-
-
-    swavesB_h_GP_freqs = np.array(cdf_swavesB_h_GP.get('FREQUENCY'))/1E6  # MHz
-    swavesB_h_GP_epoch = np.array(cdf_swavesB_h_GP.get('Epoch'))
-    swavesB_h_GP_lat = np.array(cdf_swavesB_h_GP.get('WAVE_COLATITUDE_HEE'))
-    swavesB_h_GP_az = np.array(cdf_swavesB_h_GP.get('WAVE_AZIMUTH_HEE'))
-    swavesB_GP_loc = np.array(cdf_swavesB_h_GP.get('SC_POS_HEE'))*1E3/R_sun.value
-    swavesB_GP_flux = np.array(cdf_swavesB_h_GP.get('PSD_FLUX'))
-
-
-
-    t_a_near_idx=[]
-    t_b_near_idx=[]
-    for each in swaves_a_risetimes_BB:
-        t_a_near_idx.append(find_near_dt_idx(swavesA_h_GP_epoch,each))
-    for each in swaves_b_risetimes_BB:
-        t_b_near_idx.append(find_near_dt_idx(swavesB_h_GP_epoch,each))
-
-    t_a_near_idx = np.array(t_a_near_idx)
-    t_b_near_idx = np.array(t_b_near_idx)
-    f_a_idx = np.arange(0,len(t_a_near_idx))
-    f_b_idx = f_a_idx
-
-    GP_A_freqs = swavesA_h_GP_freqs[f_a_idx]
-    GP_A_epoch = swavesA_h_GP_epoch[t_a_near_idx]
-    GP_A_lat = []
-    GP_A_az = []
-    GP_A_loc = []
-    for i in range(0, len(GP_A_freqs)):
-        GP_A_lat.append(swavesA_h_GP_lat[t_a_near_idx[i],f_a_idx[i]])
-        GP_A_az.append(swavesA_h_GP_az[t_a_near_idx[i],f_a_idx[i]])
-        GP_A_loc.append(swavesA_GP_loc[t_a_near_idx[i]])
-
-
-    GP_B_freqs = swavesB_h_GP_freqs[f_b_idx]
-    GP_B_epoch = swavesB_h_GP_epoch[t_b_near_idx]
-    GP_B_lat = []
-    GP_B_az = []
-    GP_B_loc = []
-    for i in range(0, len(GP_B_freqs)):
-        GP_B_lat.append(swavesB_h_GP_lat[t_b_near_idx[i],f_b_idx[i]])
-        GP_B_az.append(swavesB_h_GP_az[t_b_near_idx[i],f_b_idx[i]])
-        GP_B_loc.append(swavesB_GP_loc[t_b_near_idx[i]])
-
-    lt2_idx = np.where(GP_B_freqs < 2)
-    GP_A_az = np.array(GP_A_az)[lt2_idx]
-    GP_B_az = np.array(GP_B_az)[lt2_idx]
-    GP_A_loc = np.array(GP_A_loc)[lt2_idx]
-    GP_B_loc = np.array(GP_B_loc)[lt2_idx]
-
-    GP_results = ({
-        'GP_f': GP_B_freqs[lt2_idx],
-        'GP_A_az': GP_A_az,
-        'GP_B_az': GP_B_az,
-        'GP_A_loc': GP_A_loc,
-        'GP_B_loc': GP_B_loc,
-    })
-    savedfilepath = f'./Data/GP/GPresults.pkl'
-    with open(savedfilepath, 'wb') as outp:
-        pickle.dump(GP_results, outp, pickle.HIGHEST_PROTOCOL)
-    print(f"Saved results: {savedfilepath}")
-
     # ---------------------------------------------------------------- #
     # Plotting TYPE IIIs
     # ---------------------------------------------------------------- #
@@ -892,8 +792,6 @@ if __name__=="__main__":
     if backbone ==True:
         axes.plot(swaves_a_risetimes_h_BB, swaves_a_testfreq_h_BB, 'r*')
         axes.plot(fittimes_corrected_swaves_a_BB,fitfreqs_swaves_a_BB, "k--")
-    if showGP==True:
-        axes.plot(GP_A_epoch, GP_A_freqs, 'ro')
 
     axes.set_ylim(reversed(axes.get_ylim()))
     axes.set_yscale('log')
@@ -918,9 +816,6 @@ if __name__=="__main__":
     if backbone ==True:
         axes.plot(swaves_b_risetimes_h_BB, swaves_b_testfreq_h_BB, 'ro',markeredgecolor="w")
         axes.plot(fittimes_corrected_swaves_b_BB,fitfreqs_swaves_b_BB, "k--")
-    if showGP==True:
-        axes.plot(GP_B_epoch, GP_B_freqs, 'ro')
-
 
 
     axes.set_ylim(reversed(axes.get_ylim()))
