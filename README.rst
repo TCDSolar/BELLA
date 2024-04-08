@@ -5,11 +5,11 @@ BayEsian LocaLisation Algorithm - BELLA
 .. image:: http://img.shields.io/badge/powered%20by-SunPy-orange.svg?style=flat
     :target: http://www.sunpy.org
     :alt: Powered by SunPy Badge
-    
+
 .. image:: https://img.shields.io/badge/powered%20by-PyMC-blue
     :target: http://www.pymc.io
     :alt: Powered by PyMC Badge
-    
+
 .. image:: https://img.shields.io/badge/powered%20by-SolarMAP-orange
     :target: https://pypi.org/project/solarmap/
     :alt: Powered by SolarMAP Badge
