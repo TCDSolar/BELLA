@@ -1,6 +1,6 @@
-============
+========================================
 BayEsian LocaLisation Algorithm - BELLA
-============
+========================================
 
 .. image:: http://img.shields.io/badge/powered%20by-SunPy-orange.svg?style=flat
     :target: http://www.sunpy.org
@@ -44,9 +44,6 @@ Features:
 Contributions and comments are welcome using Github at: 
 https://github.com/TCDSolar/BELLA_Multilateration/
 
-
-
-
 Please note that BELLA requires:
 
 - PyMC3
@@ -68,7 +65,7 @@ You must install virtual environments with python 3.8.
 
 
 Install BELLA Type III Fitter
-----
+--------------------------------
 
 1 - Make a virtual env: 
 
@@ -133,7 +130,7 @@ or
 
 
 Install BELLA Multilaterate
-----
+----------------------------
 
 1 - Make a virtual env:
 
