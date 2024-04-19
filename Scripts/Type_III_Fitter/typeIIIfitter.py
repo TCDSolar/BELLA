@@ -18,7 +18,9 @@ from math import sqrt
 from datetime import datetime
 from scipy.optimize import curve_fit
 
-
+##########################################################################
+#               GH fitting functions
+##########################################################################
 def gausshermiteh3h4(x, A, x0, s, h3, h4):
     # ------------------------------------------------------------
     # The Gauss-Hermite function is a superposition of functions of the form
@@ -124,58 +126,30 @@ def funcV(p, x):
     alphaD, alphaL, nu_0, I, z0 = p
     return Voigt(x, alphaD, alphaL, nu_0, I) + z0
 
-
 def funcG(p, x):
     # Model function is a gaussian
     A, mu, sigma, zerolev = p
     return (A * np.exp(-(x - mu) * (x - mu) / (2 * sigma * sigma)) + zerolev)
-
 
 def funcGH(p, x):
     # Model is a Gauss-Hermite function
     A, xo, s, h3, h4, zerolev = p
     return gausshermiteh3h4(x, A, xo, s, h3, h4) + zerolev
 
-
 def residualsV(p, data):
     # Return weighted residuals of Voigt
     x, y, err = data
     return (y - funcV(p, x)) / err
-
 
 def residualsG(p, data):
     # Return weighted residuals of Gauss
     x, y, err = data
     return (y - funcG(p, x)) / err
 
-
 def residualsGH(p, data):
     # Return weighted residuals of Gauss-Hermite
     x, y, err = data
     return (y - funcGH(p, x)) / err
-
-def datetime2timestamp(dates):
-   timestamps=[]
-   for each in dates:
-      timestamps.append(datetime.timestamp(each))
-   return timestamps
-
-def timestamp2datetime(stamps):
-   dates=[]
-   for each in stamps:
-      dates.append(datetime.fromtimestamp(each))
-   return dates
-
-def mkdirectory(directory):
-    dir = directory
-    isExist = os.path.exists(dir)
-
-    if not isExist:
-        # Create a new directory because it does not exist
-        os.makedirs(dir)
-        print("The new directory is created!")
-
-    return dir
 
 # def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
 #     """sdauto picks n number of points from max point as initial guess for standard deviation"""
@@ -314,7 +288,8 @@ def mkdirectory(directory):
 #         plt.close()
 #
 #     return [xrise, yrise]
-def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
+
+def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma",profile="LE", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
     """sdauto picks n number of points from max point as initial guess for standard deviation"""
     """ Recomended sigma 1 or 2"""
     """ h3 - skewness ,  h4 - kurtosis"""
@@ -370,26 +345,50 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
 
     maxfit_idx = np.where(yfit==np.max(yfit))[0][0]
 
-    supported_methods = ["sigma", "hwhm", "thirdmax", "peak"]
+    supported_methods = ["sigma", "hwhm", "thirdmax","quartermax", "peak"]
     if method == "sigma":
         # Get an n sigma (standard distributions) off the peak
         xrise = xd[maxfit_idx] - sigma*s
+
     elif method == "hwhm":
-        # half width half maximum LHS
+        # half width half maximum LHS (LE) and RHS(TE)
         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
-        # this is ok because we are under the resolution of the instrument
-        ycheck = yfit[0:maxfit_idx]
-        halfmax = (yfit[maxfit_idx] - z0GH)/2 + z0GH
-        y_hwhm,y_hwhm_idx = find_nearest(ycheck,halfmax)
-        xrise = xd[y_hwhm_idx]
+        if profile == "LE":
+            ycheck = yfit[0:maxfit_idx]
+            ydetection = (yfit[maxfit_idx] - z0GH)/2 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[y_quarter_idx]
+        elif profile == "TE":
+            ycheck = yfit[maxfit_idx:]
+            ydetection = (yfit[maxfit_idx] - z0GH)/2 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[maxfit_idx+y_quarter_idx]
     elif method == "thirdmax":
-        # half width third maximum LHS
+        # half width half maximum LHS (LE) and RHS(TE)
         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
-        # this is ok because we are under the resolution of the instrument
-        ycheck = yfit[0:maxfit_idx]
-        halfmax = (yfit[maxfit_idx] - z0GH)/3 + z0GH
-        y_hwhm,y_hwhm_idx = find_nearest(ycheck,halfmax)
-        xrise = xd[y_hwhm_idx]
+        if profile == "LE":
+            ycheck = yfit[0:maxfit_idx]
+            ydetection = (yfit[maxfit_idx] - z0GH)/3 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[y_quarter_idx]
+        elif profile == "TE":
+            ycheck = yfit[maxfit_idx:]
+            ydetection = (yfit[maxfit_idx] - z0GH)/3 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[maxfit_idx+y_quarter_idx]
+    elif method == "quartermax":
+        # half width half maximum LHS (LE) and RHS(TE)
+        # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+        if profile == "LE":
+            ycheck = yfit[0:maxfit_idx]
+            ydetection = (yfit[maxfit_idx] - z0GH)/4 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[y_quarter_idx]
+        elif profile == "TE":
+            ycheck = yfit[maxfit_idx:]
+            ydetection = (yfit[maxfit_idx] - z0GH)/4 + z0GH
+            y_quarter, y_quarter_idx = find_nearest(ycheck, ydetection)
+            xrise = xd[maxfit_idx+y_quarter_idx]
 
     elif method == "peak":
         xrise = xd[maxfit_idx]
@@ -460,7 +459,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
 
     if saveplots==True:
         mkdirectory(dir)
-        fid = f"{dir}/{fname}.jpg"
+        fid = f"{dir}{fname}.jpg"
         plt.gcf().savefig(fid, dpi=150)
         print(f"{fid} saved")
 
@@ -471,8 +470,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
 
     return [xrise, yrise]
 
-
-def auto_rise_times(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess=1,method="sigma", plotresults=False, saveplots=False):
+def auto_rise_times(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess=1, method="sigma",profile="LE", plotresults=False, saveplots=False):
 
     freqs = spectra.frequencies
     times = spectra.times
@@ -500,10 +498,7 @@ def auto_rise_times(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess
         times_dt.append(each.datetime)
 
 
-
-    dir=f"lightcurves/lc_{times_dt[0].year}_{times_dt[0].month:02}_{times_dt[0].day:02}/{spectra.observatory}/{method}/"
-
-
+    dir = f"lightcurves/lc_{times_dt[0].year}_{times_dt[0].month:02}_{times_dt[0].day:02}/{spectra.observatory}/{method}_{profile}/"
 
     risetimes = []
     riseval = []
@@ -515,10 +510,53 @@ def auto_rise_times(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess
         if normfact != 0:
             y = np.array(testdata / normfact) # normalised
             fname = f"{spectra.observatory.replace(' ','')}_{method}_{freqs[f].value:.2f}"
-            risex, risey = fit_lc(x, y,freq=freqs[f].value, sigma=sigma, sdauto=sdauto, h3guess=h3guess, h4guess=h4guess, z0guess=z0guess,method=method, plotresults=plotresults, saveplots=saveplots, dir=dir, fname=fname )
+            risex, risey = fit_lc(x, y,freq=freqs[f].value, sigma=sigma,profile=profile, sdauto=sdauto, h3guess=h3guess, h4guess=h4guess, z0guess=z0guess,method=method, plotresults=plotresults, saveplots=saveplots, dir=dir, fname=fname )
             risetimes.append(risex)
             riseval.append(risey)
             testfreq.append(freqs[f].value)
+
+    return risetimes, riseval, testfreq
+
+
+def rise_times_atmax(spectra, freqlims=[], timelims=[]):
+
+    freqs = spectra.frequencies
+    times = spectra.times
+    data = spectra.data
+
+    if freqlims==[]:
+        freqlimmin = freqs[0]
+        freqlimmax = freqs[-1]
+    else:
+        freqlimmin, freqlimmax  = freqlims
+
+    minfreq, minfreqidx = find_nearest(freqs, freqlimmin)
+    maxfreq, maxfreqidx = find_nearest(freqs, freqlimmax)
+
+    if timelims==[]:
+        mintime = times[0]
+        maxtime = times[-1]
+    else:
+        mintime, maxtime = timelims
+
+    time_idx = np.where(np.logical_and(times >= mintime, times <= maxtime))
+
+    times_dt = []
+    for each in times[time_idx]:
+        times_dt.append(each.datetime)
+
+    risetimes = []
+    riseval = []
+    testfreq = []
+    x = np.array(datetime2timestamp(times_dt))
+    for f in range(minfreqidx,maxfreqidx): #f = 1
+        testdata = data[f, time_idx][0]
+        y_max = testdata.max()
+        t = np.where(testdata==y_max)
+        risex = timestamp2datetime(x[t])[0]
+        risetimes.append(risex)
+        riseval.append(y_max)
+        testfreq.append(freqs[f].value)
 
     return risetimes, riseval, testfreq
 
@@ -574,26 +612,16 @@ def testmethod(spectra, freqlims=[], timelims=[],sigma=1, sdauto=2, h3guess=0.1,
 
 
 
+
+##########################################################################
+#               Type III fitting functions
+##########################################################################
+
 def quadratic_func(x,a,b,c):
     return a*(x**2) + b*x + c
 
-
-
-
 def biquadratic_func(x, a,b,c,d,e):
     return  a*(x**4) + b*(x**3) + c*(x**2) + d*x + e
-
-
-
-def fittypeIII(times, ydata):
-    xdata = datetime2timestamp(times)
-    xref = xdata[-1]
-    xdata_buff = np.array(xdata) - xref
-
-    popt, pcov = curve_fit(exp_fn2, xdata_buff, ydata)
-
-    return popt, pcov, xref
-
 
 def typeIII_func(times, popt, pcov, xref, num=100):
 
@@ -608,17 +636,105 @@ def typeIII_func(times, popt, pcov, xref, num=100):
 
     return xdatafit_corrected_dt, ydatafit
 
+def log_func(x,a,b,c):
+    return (-1/b) * np.log((x-c)/a)
+
+def exponential_func(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+def exponential_func2(x, a, b, c,d):
+    return a * np.exp((-b * x) + d) + c
+
+def log_func2(x,a,b,c,d):
+    return (1/b) * (d - np.log((x-c)/a))
+
+def exponential_func2(x, a, b, c,d):
+    return a * np.exp((-b * x) + d) + c
+
+def exponential_func3(x, a, b, c,d,const ):
+    return a * const**((-b * x) + d) + c
+
+def exp_fn2(x,a,b,c,d):
+    return a*np.exp((b-x)/c) + d
+
+def log_fn2(x,a,b,c,d):
+    return b-(c*np.log((x-d)/a))
+
+def reciprocal_3rdorder(x, a0, a1, a2, a3):
+    return a0 + a1 / x + a2 / x ** 2+ a3 / x ** 3
+
+def reciprocal_2ndorder(x, a0, a1, a2):
+    return a0 + a1 / x + a2 / x ** 2
+
+def fittypeIII(times, ydata):
+    "Not in use"
+    xdata = datetime2timestamp(times)
+    xref = xdata[-1]
+    xdata_buff = np.array(xdata) - xref
+
+    popt, pcov = curve_fit(exp_fn2, xdata_buff, ydata)
+
+    return popt, pcov, xref
+
+def typeIIIfitting(risetimes,testfreq, fitfreqs,freqs4tri, plot_residuals=False):
+    """This function takes discrete frequencies and timestamps and returns fitted time data for input.
+    fitfreqs  -  frequencies for extrapolated and interpolated fitting
+    freqs4tri -  the frquencies that will be used for multilateration"""
+    # Turning extracted datetimes into timestamps.
+    # Timestamps are subtracted from reference point xref for management of data.
+    xdata, xref = epoch2time(risetimes)
+    # Frequencies extracted from data in MHz
+    ydata = testfreq
+
+    # Fitting discrete DATA into smooth Type III
+    popt, pcov = curve_fit(reciprocal_2ndorder, ydata, xdata)
+
+    # Time output used locally, this includes extrapolation of burst.
+    fittimes = reciprocal_2ndorder(fitfreqs, *popt)
+
+    # Time output used for multilateration
+    times4tri = reciprocal_2ndorder(freqs4tri, *popt)
+
+    # Extrapolated data might result in nan values
+    notnan = np.where(~np.isnan(fittimes))
+    fitfreqs_local = fitfreqs[notnan]
+    fittimes_notnan = fittimes[notnan]
+
+    # Convert into datetime
+    times4tri_dt = time2epoch(times4tri, xref)
+    fittimes_corrected = time2epoch(fittimes_notnan, xref)
+
+    # residuals
+    fittimes_for_residuals = reciprocal_2ndorder(np.array(testfreq), *popt)
+    residuals = np.subtract(xdata, fittimes_for_residuals)
+
+    if plot_residuals == True:
+        plt.figure()
+        plt.plot(residuals, "r.")
+        plt.title("residuals WAVES LEADING EDGE")
+        plt.xlabel("index")
+        plt.ylabel("difference")
+        plt.show(block=False)
+
+    return times4tri_dt, fitfreqs_local, fittimes_corrected
 
 
 
+##########################################################################
+#               Additional functions
+##########################################################################
 
-def find_nearest(array, value):
-    array = np.asarray(array)
-    idx = (np.abs(array - value)).argmin()
-    return array[idx], idx
+def datetime2timestamp(dates):
+   timestamps=[]
+   for each in dates:
+      timestamps.append(datetime.timestamp(each))
+   return timestamps
 
-
-
+def timestamp2datetime(stamps):
+   dates=[]
+   for each in stamps:
+      dates.append(datetime.fromtimestamp(each))
+   return dates
 
 def epoch2time(epoch):
     times_buff = datetime2timestamp(epoch)
@@ -631,38 +747,25 @@ def time2epoch(times, xref):
     epoch_dt = timestamp2datetime(epoch_corrected)
     return epoch_dt
 
-def log_func(x,a,b,c):
-    return (-1/b) * np.log((x-c)/a)
+def mkdirectory(directory):
+    dir = directory
+    isExist = os.path.exists(dir)
 
-def exponential_func(x, a, b, c):
-    return a * np.exp(-b * x) + c
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(dir)
+        print("The new directory is created!")
 
+    return dir
 
-def exponential_func2(x, a, b, c,d):
-    return a * np.exp((-b * x) + d) + c
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx], idx
 
-def log_func2(x,a,b,c,d):
-    return (1/b) * (d - np.log((x-c)/a))
-
-
-def exponential_func2(x, a, b, c,d):
-    return a * np.exp((-b * x) + d) + c
-
-
-def exponential_func3(x, a, b, c,d,const ):
-    return a * const**((-b * x) + d) + c
-
-
-
-
-
-def exp_fn2(x,a,b,c,d):
-    return a*np.exp((b-x)/c) + d
-
-def log_fn2(x,a,b,c,d):
-    return b-(c*np.log((x-d)/a))
-
-
+def f_to_angs(f_mhz,c=299792458):
+    angstrom = (c / (f_mhz * 10 ** 6)) * 10 ** 10
+    return angstrom
 
 
 

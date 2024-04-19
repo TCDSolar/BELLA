@@ -11,13 +11,13 @@ from matplotlib.ticker import FormatStrFormatter,LogFormatter
 
 import os
 
-import pymc3 as pm
+# import pymc3 as pm
 from scipy.stats import gaussian_kde
 from scipy.ndimage import median_filter
 from scipy.optimize import curve_fit
 import scipy.io
 
-import arviz as az
+# import arviz as az
 from astropy.constants import c, m_e, R_sun, e, eps0, au
 import astropy.units as u
 
@@ -63,6 +63,10 @@ def cartesian_to_polar(x, y,x0y0 = [0,0]):
     r = math.sqrt((x0-x)**2 + (y0-y)**2)
     theta = math.atan2(y, x)
     return (r, theta)
+
+
+
+
 
 def mkdirectory(directory):
     dir = directory
@@ -246,6 +250,8 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if "earth_orbit" in objects:
         earth_orbit = plt.Circle((0, 0), au/R_sun + 5, color='k', linestyle="dashed", fill=None)
         ax.add_patch(earth_orbit)
+
+
     if "spacecraft" in objects:
         ax.scatter(stations[:,0], stations[:,1],color = "w", marker="^",edgecolors="k", s=180, label="Spacecraft")
 
@@ -268,7 +274,6 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
         cbar_ax.set_ylabel('BELLA uncertainty ($R_{\odot}$)', fontsize=18)
         cbar_ax.tick_params(labelsize=15)
 
-
     if "earth" in objects:
         ax.plot(au / R_sun+5, 0, 'bo', label="Earth", markersize=10)
     if "sun" in objects:
@@ -286,15 +291,24 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
 
 
 
-def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, cbar_axes=[0.91, 0.1, 0.01, 0.35]):
+def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, cbar_axes=[0.91, 0.1, 0.01, 0.35], marker=".",cmap="turbo", label="TOA BELLA",s=100, edgecolors="w",norm=[],zorder=1000):
     xy_vals = np.array(list(trackedtypeIII.xy))
     xy = xy_vals/R_sun.value
     tracked_freqs = trackedtypeIII.freq
     sd_vals = np.array(list(trackedtypeIII.sd))
     sd = sd_vals/R_sun.value
 
-    # # ELLIPSES
-    colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
+    if norm == []:
+        norm = matplotlib.colors.LogNorm()
+
+    # Access the colormap function dynamically
+    cmap_func = getattr(cm, cmap)
+    # Generate colors
+    colors = cmap_func(np.linspace(0, 1.0, len(xy)))
+
+    # colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
+
+
     if confidence ==True:
         i = 0
         ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
@@ -310,7 +324,59 @@ def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar
 
             ax.add_patch(ell_track_uncertainty)
 
-    im_track = ax.scatter(xy[:,0], xy[:,1],c = tracked_freqs, cmap="turbo", marker=".",edgecolors="w", s=100, label="TOA BELLA", norm=matplotlib.colors.LogNorm(),zorder=1000)
+    im_track = ax.scatter(xy[:,0], xy[:,1],c = tracked_freqs, cmap=cmap, marker=marker, edgecolors=edgecolors, s=s, label=label, norm=norm,zorder=zorder)
+
+    if showcolorbar == True:
+        cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
+        formatter = LogFormatter(10, labelOnlyBase=False)
+        fig.colorbar(im_track, cax=cbar_ax2, format=formatter)
+        cbar_ax2.set_ylabel('Tracked beam freq (MHz)', fontsize=18)
+
+        cbar_ax2.tick_params(axis='y', which='minor',labelsize=15)
+        cbar_ax2.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+
+        cbar_ax2.tick_params(labelsize=15)
+
+    return fig, ax
+def plot_typeIII_sim(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, showtruesources=True, cbar_axes=[0.91, 0.1, 0.01, 0.35], marker=".",cmap="turbo", label="TOA BELLA",s=100, edgecolors="w",norm=[],zorder=1000):
+
+    xy_vals = np.vstack(trackedtypeIII.xy_detected[0])
+    xy = xy_vals/R_sun.value
+    sd_vals = np.vstack(trackedtypeIII.sd_detected[0])
+    sd = sd_vals/R_sun.value
+    xy_vals_true = np.vstack(trackedtypeIII.xy_true)
+    xy_true = xy_vals_true/R_sun.value
+
+    if norm == []:
+        norm = matplotlib.colors.LogNorm()
+
+    # Access the colormap function dynamically
+    cmap_func = getattr(cm, cmap)
+    # Generate colors
+    colors = cmap_func(np.linspace(0, 1.0, len(xy)))
+
+    # colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
+    if confidence ==True:
+        i = 0
+        ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
+                                                           width=2*sd[i, 0], height=2*sd[i, 1],
+                                                           angle=0., edgecolor=colors[i], lw=1.5)
+        ax.add_patch(ell_track_uncertainty)
+        ell_track_uncertainty.set_facecolor('none')
+
+        for i in range(1, len(xy)):
+            ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i,0], xy[i,1]),
+                      width=2*sd[i,0], height=2*sd[i,1],
+                      angle=0.,edgecolor=colors[i], lw=1.5)
+
+            ell_track_uncertainty.set_facecolor('none')
+
+
+            ax.add_patch(ell_track_uncertainty)
+
+    if showtruesources:
+        im_true = ax.scatter(xy_true[:,0], xy_true[:,1], cmap=cmap, marker="o", edgecolors=edgecolors, c="yellow", s=s, label="True Sources", norm=norm,zorder=zorder-1)
+    im_track = ax.scatter(xy[:,0], xy[:,1], cmap=cmap, marker=marker, edgecolors=edgecolors, s=s, label=label, norm=norm,zorder=zorder)
 
     if showcolorbar == True:
         cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
@@ -338,14 +404,6 @@ def plot_parker_spiral(fig, ax, v_sw=400,phi_sw=0, omega=2.662e-6, theta=0, **kw
     return fig, ax
 
 
-
-
-
-
-
-
-
-
 def loaddata(filenamef):
     import pickle
 
@@ -367,15 +425,17 @@ def savepickle(results, filename):
 
 
 
-
-
-
-
 def loadtrackedtypeiii(filenamef):
     import pickle
     with open(filenamef, 'rb') as inp:
         results = pickle.load(inp)
+    inp.close()
+    return results
 
+def loadpickle(filenamef):
+    import pickle
+    with open(filenamef, 'rb') as inp:
+        results = pickle.load(inp)
     inp.close()
     return results
 
@@ -470,11 +530,50 @@ def parker_streamline(phi_0=0.0,sol_rot=24.47, v_sw=360e3,r0=1.0,rmax = 315,samp
     else:
         print("specify coordinate system. coord = 'polar' || coord = 'cartesian'")
 
+def find_intersection_point(sc1, angle1_degrees, sc2, angle2_degrees):
+    # Convert angles to radians
+    angle1_radians = math.radians(angle1_degrees)
+    angle2_radians = math.radians(angle2_degrees)
 
+    x1, y1 = sc1
+    x2, y2 = sc2
 
+    # Calculate slopes
+    m1 = math.tan(angle1_radians)
+    m2 = math.tan(angle2_radians)
 
+    # Calculate y-intercepts
+    b1 = y1 - m1 * x1
+    b2 = y2 - m2 * x2
 
+    # Calculate intersection point
+    x_intersection = (b2 - b1) / (m1 - m2)
+    y_intersection = m1 * x_intersection + b1
 
+    return x_intersection, y_intersection
+
+def find_near_dt_idx(datetime_array, target_datetime):
+    return min(range(len(datetime_array)), key=lambda i: abs(datetime_array[i] - target_datetime))
+
+def find_nearest_value(array, target_value):
+    """
+    Find the nearest value in the array to the target value.
+
+    Parameters:
+    - array: NumPy array
+    - target_value: Value to find the nearest match
+
+    Returns:
+    - nearest_value: Nearest value in the array
+    """
+
+    # Find the index of the nearest value
+    index_nearest = np.abs(array - target_value).argmin()
+
+    # Get the nearest value
+    nearest_value = array[index_nearest]
+
+    return nearest_value
 
 
 
@@ -484,14 +583,16 @@ class typeIII:
     self.xy = xy
     self.sd = sd
 
+class sim_burst:
+  def __init__(self, xy_true, xy_detected, sd_detected):
+    self.xy_true = xy_true
+    self.xy_detected = xy_detected
+    self.sd_detected = sd_detected
+
 
 
 
 if __name__ == "__main__":
-    __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
-
-    string ='Running on PyMC3 v{}'.format(pm.__version__)
-    print(string)
 
     ncores_cpu = multiprocessing.cpu_count()
 
