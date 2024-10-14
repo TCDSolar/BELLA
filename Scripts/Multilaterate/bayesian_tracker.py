@@ -268,15 +268,20 @@ def loadtypeiii(filenamef, spacecraft):
         typeIII['stereo_b'] = stetypeiii
         loadedtxt = loadedtxt + ', stereo b'
 
+    if 'solo' in spacecraft:
+        solotypeiii = results['SoloTime']
+        typeIII['solo'] = solotypeiii
+        loadedtxt = loadedtxt + ', solo'
+
     if 'psp' in spacecraft:
         psptypeiii = results['PSPTime']
         typeIII['psp'] = psptypeiii
         loadedtxt = loadedtxt + ', psp'
 
-    if 'solo' in spacecraft:
-        solotypeiii = results['SoloTime']
-        typeIII['solo'] = solotypeiii
-        loadedtxt = loadedtxt + ', solo'
+    if 'mex' in spacecraft:
+        mextypeiii = results['MEXTime']
+        typeIII['mex'] = mextypeiii
+        loadedtxt = loadedtxt + ', mex'
 
     print(f"loaded type iii data from {loadedtxt} ")
 

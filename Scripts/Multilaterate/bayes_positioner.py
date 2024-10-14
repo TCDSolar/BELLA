@@ -36,7 +36,7 @@ class BayesianTOAPositioner:
                  stations,
                  x_lim=1.5*au.value,# maximum box size (m)
                  v_mu=c.value,# max velocity prior (m/s)
-                 v_sd=(1/100)*c.value,# standard deviation of velocity prior (m/s)
+                 v_sd=(0.00001)*c.value,# standard deviation of velocity prior (m/s)
                  t_cadence=60): # Spacecraft Cadence in seconds
 
 
@@ -153,12 +153,12 @@ def mkdirectory(directory):
     return dir
 
 
-def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, progressbar=True, report=0, plot=0, traceplot=False, savetraceplot = False, showplot=False, traceplotdir="", traceplotfn=""):
+def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLES=2000, progressbar=True, report=0, plot=0, traceplot=False, savetraceplot = False, showplot=False, traceplotdir="", traceplotfn=""):
     """"
     Input: spacecraft : array (Nx2) N is number of stations
         First column is time, Second column is location.
     """
-    B = BayesianTOAPositioner(coords, t_cadence=t_cadence)
+    B = BayesianTOAPositioner(coords, t_cadence=t_cadence, v_sd=v_sd)
     trace, summary, _, _ = B.sample(times, draws=N_SAMPLES, tune=N_SAMPLES, chains=chains, cores=cores, progressbar=progressbar)
 
 
@@ -219,8 +219,14 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         sd_y_axis_VCOORD = norm.pdf(v_sampled-v_sd_sampled, v_sampled, v_sd_sampled)
         # ax[1, 0].hlines(sd_y_axis_YCOORD, mu[1] - sd[1], mu[1] + sd[1])                     # HORIZONTAL stedv line
         x_axis = np.linspace(trace['v'].min(), trace['v'].max(), 50)   #
-        ax[2,0].plot(x_axis, norm.pdf(x_axis, v_sampled, v_sd_sampled))                       # GAUSSIAN FIT OF ALL CHAINS
-        ax[2, 0].vlines(c.value,0, ax[2, 0].get_ylim()[1], 'r', alpha=0.6)                    # C VALUE
+        ax[2,0].plot(x_axis, norm.pdf(x_axis, v_sampled, v_sd_sampled))                               # GAUSSIAN FIT OF ALL CHAINS
+
+        maxval = ax[2, 0].get_ylim()[1]
+        ax[2, 0].vlines(c.value+c.value*0.001, 0, maxval, 'r', alpha=0.3)                     # c+1% VALUE
+        ax[2, 0].vlines(c.value, 0, maxval, 'r', alpha=0.6)                                   # c VALUE
+        ax[2, 0].vlines(c.value-c.value*0.001, 0,maxval, 'r', alpha=0.3)                     # c-1% C VALUE
+
+
 
         ax[2, 0].vlines(v_sampled,0,norm.pdf(v_sampled, v_sampled, v_sd_sampled))            # MEAN VALUE
 
@@ -299,7 +305,7 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         np.around(ticks, decimals=0, out=ticks)
         ax[1, 0].set_xticklabels(ticks.astype(int))
 
-        ax[2, 0].xaxis.set_ticks(c.value*np.arange(997, 1004, 1)*0.001)
+        # ax[2, 0].xaxis.set_ticks(c.value*np.arange(997, 1004, 1)*0.001)
         ticks = ax[2, 0].get_xticks() / c.value
         np.around(ticks, decimals=3, out=ticks)
         ax[2, 0].set_xticklabels(ticks)
@@ -321,7 +327,7 @@ def triangulate(coords, times,t_cadence=60,chains=4, cores=4, N_SAMPLES=2000, pr
         np.around(ticks, decimals=0, out=ticks)
         ax[1, 1].set_yticklabels(ticks.astype(int))
 
-        ax[2, 1].yaxis.set_ticks(c.value*np.arange(997, 1004, 1)*0.001)
+        # ax[2, 1].yaxis.set_ticks(c.value*np.arange(980, 1020, 5)*0.001)
         ticks = ax[2, 1].get_yticks() / c.value
         np.around(ticks, decimals=3, out=ticks)
         ax[2, 1].set_yticklabels(ticks)
@@ -387,7 +393,7 @@ if __name__ == "__main__":
     ncores_cpu = multiprocessing.cpu_count()
 
     # Date of the observation
-    day =11
+    day = 11
     month = 7
     year = 2020
     date_str = f"{year}_{month:02d}_{day:02d}"
