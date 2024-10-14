@@ -57,15 +57,20 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False, lighttravelshi
     print(wind_variables)
     waves_data = get_data(f'E_VOLTAGE_{datatype}')
 
-
-
-    waves_freqs_MHz = waves_data.v/ 1e3 * u.MHz
+    if datatype=='RAD2':
+        frequencies = np.insert(waves_data.v, 0, 1000, axis=0) # fill gap at 1MHz
+        waves_freqs_MHz = frequencies/1e3 * u.MHz
+    else:
+        waves_freqs_MHz = waves_data.v/ 1e3 * u.MHz
 
     waves_timestamps = waves_data.times
     waves_times = Time(Time(np.array([(datetime.utcfromtimestamp(t_)+timedelta(seconds=lighttravelshift)) for t_ in waves_timestamps])).isot)
 
-
-    waves_psdarray = waves_data.y
+    if datatype=='RAD2':
+        waves_psdarray = waves_data.y
+        waves_psdarray = np.insert(waves_psdarray, 0, waves_psdarray[:,0], axis=1)  # fill gap at 1MHz
+    else:
+        waves_psdarray = waves_data.y
 
     meta = {
         'observatory': f"WIND",
@@ -92,9 +97,17 @@ def local_waves_spec_l2_60s(file, datatype='RAD1', kind='SMEAN', bg_subtraction=
     waves_epoch_dt = data['TIME']
     waves_times = Time(Time(np.array([(t_+timedelta(seconds=lighttravelshift)) for t_ in waves_epoch_dt])).isot)
 
+    if datatype=='RAD2':
+        frequencies = list([1000.0]) + list(frequencies)
+        waves_freqs_MHz = np.array(frequencies)/1e3*u.MHz
+    else:
+        waves_freqs_MHz = np.array(frequencies)/1e3*u.MHz
 
-    waves_freqs_MHz = np.array(frequencies)/1e3*u.MHz
-    waves_psdarray = data[kind]
+    if datatype=='RAD2':
+        waves_psdarray = data[kind]
+        waves_psdarray = np.insert(waves_psdarray, 0, waves_psdarray[:,0], axis=1)
+    else:
+        waves_psdarray = data[kind]
 
     meta = {
         'observatory': f"WIND",
@@ -112,10 +125,6 @@ def local_waves_spec_l2_60s(file, datatype='RAD1', kind='SMEAN', bg_subtraction=
         waves_spec.data = backSub(waves_spec.data.T).T
 
     return waves_spec
-
-
-
-
 
 
 def swaves_highres_spec(start, endt, probe='a', datatype='hfr', bg_subtraction=False, lighttravelshift=0):

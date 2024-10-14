@@ -73,11 +73,24 @@ def newkirk(hr, f, a):
     """ [1] for fundamental backbone, [2] for Harmonic Backbone.
          f: frequency (MHz).
          a: fold (1 - 4, [1] for quiet Sun, [4] for active regions). """
-
     n_e = ((f*1e6)/(hr*9000))**2
     r_nk = (4.32/np.log10(n_e/(a*4.2e4)))
-
     return n_e, r_nk
+
+def parker(hr, f, a):
+    """ [1] for fundamental backbone, [2] for Harmonic Backbone.
+         f: frequency (MHz).
+         a: fold (1 - 4, [1] for quiet Sun, [4] for active regions). """
+    hr=0
+    n_e = Ne(f)*a
+    r = R_parker(n_e, calibration_factor=1)
+
+    return n_e, r
+
+
+
+
+
 
 
 def Ne_nk(r,fold=1):
@@ -119,6 +132,45 @@ def R_moncuquet(Ne) :
     n0 = 10*u.cm**-3
     return (n0/Ne)**0.5 * u.au
 
+from scipy.optimize import root_scalar
+
+def find_radius_parker(target_ne, calibration_factor=1):
+    def difference(r):
+        return Ne_parker(r)*calibration_factor - target_ne
+    return difference
+def find_radius_saito(target_ne, calibration_factor=1):
+    def difference(r):
+        return Ne_saito(r)*calibration_factor - target_ne
+    return difference
+def find_radius_leblanc(target_ne, calibration_factor=1):
+    def difference(r):
+        return Ne_leblanc(r)*calibration_factor - target_ne
+    return difference
+
+
+def R_parker(target_ne, calibration_factor=1):
+    target_ne = target_ne.value
+    sol = root_scalar(find_radius_parker(target_ne,calibration_factor), bracket=[1, 215], method='brentq')
+    if sol.converged:
+        return sol.root
+    else:
+        return None  # or raise an error depending on how you want to handle failures
+
+def R_saito(target_ne, calibration_factor=1):
+    target_ne = target_ne.value
+    sol = root_scalar(find_radius_saito(target_ne, calibration_factor), bracket=[1, 215], method='brentq')
+    if sol.converged:
+        return sol.root
+    else:
+        return None  # or raise an error depending on how you want to handle failures
+
+def R_leblanc(target_ne, calibration_factor=1):
+    target_ne = target_ne.value
+    sol = root_scalar(find_radius_leblanc(target_ne,calibration_factor), bracket=[1, 215], method='brentq')
+    if sol.converged:
+        return sol.root
+    else:
+        return None  # or raise an error depending on how you want to handle failures
 
 
 
@@ -154,12 +206,12 @@ if __name__ == "__main__":
     ax1.axhline(y=0.02, xmin=0, xmax=200)
     ax1.axvline(x=215, ymin=0, ymax=1, ls='--', c="k")
     ax1.axvline(x=2, ymin=0, ymax=1, ls='--', c="k")
-    ax1.text(1.6, 1200, "2 Rsun")
-    ax1.text(150, 1200, "215 Rsun")
+    ax1.text(1.6, 1200, "2 R$_\odot$")
+    ax1.text(150, 1200, "215 R$_\odot$")
     ax1.text(250, 26, "25 MHz")
     ax1.text(250, 0.03, "0.02 MHz")
-    ax1.set_xlabel("Distance from Sun [Rsun]", fontsize=26)
-    ax1.set_ylabel("Frequency [MHz]", fontsize=26)
+    ax1.set_xlabel("Distance from Sun (R$_\odot$)", fontsize=26)
+    ax1.set_ylabel("Frequency (MHz)", fontsize=26)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     plt.legend(loc='upper right', fontsize=18)
@@ -172,7 +224,7 @@ if __name__ == "__main__":
     ax2.plot(R, ne_l, 'g-')
 
     # ax2.set_ylim(20000 * km3yearToSv, 70000 * km3yearToSv)
-    ax2.set_ylabel('density ne [$cm^{-3}$]', fontsize=26)
+    ax2.set_ylabel('Electron density n$_e$ ($cm^{-3}$)', fontsize=26)
     ax2.set_xscale('log')
     ax2.set_yscale('log')
 

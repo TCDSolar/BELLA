@@ -13,35 +13,79 @@ plt.rcParams.update({'font.family': "Times New Roman"})
 
 
 
+# def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
+#     #CDFLIB reads Epoch inccorrectly. DO NOT USE CDFLIB with solo data
+#     # Open the CDF file
+#     cdf = cdflib.CDF(cdf_file_path)
+#
+#     # List all variables in the CDF file
+#     var_names = cdf.cdf_info()['zVariables']
+#
+#     print("Variables in the CDF file:", var_names)
+#
+#     epoch = cdf.varget("Epoch")
+#     frequency = cdf.varget("FREQUENCY")
+#     background = cdf.varget("BACKGROUND")
+#     sensor_config = cdf.varget("SENSOR_CONFIG")
+#     channel = cdf.varget("CHANNEL")
+#     timing = cdf.varget("TIMING")
+#     quality_flag = cdf.varget("QUALITY_FLAG")
+#     interpol_flags = cdf.varget("INTERPOL_FLAG")
+#     psd_v2 = cdf.varget("PSD_V2")
+#     psd_flux = cdf.varget("PSD_FLUX")
+#     psd_sfu = cdf.varget("PSD_SFU")
+#     lbl1_sc_pos_hci = cdf.varget("LBL1_SC_POS_HCI")
+#     sc_pos_hci = cdf.varget("SC_POS_HCI")
+#     rep1_sc_pos_hci = cdf.varget("REP1_SC_POS_HCI")
+#
+#     j2000_start = dt.datetime(2000, 1, 1, 12, 0) + dt.timedelta(seconds=lighttravelshift)
+#     epoch_dt = [j2000_start + dt.timedelta(microseconds=tt / 1000) for tt in epoch]
+#
+#     rpw_freqs_MHz = frequency / 1e6 * u.MHz
+#     rpw_times = Time([dt.isoformat() for dt in epoch_dt])
+#
+#
+#     meta = {
+#         'observatory': f"SolO",
+#         'instrument': "RPW",
+#         'detector': "RPW-HFR-SURV",
+#         'freqs': rpw_freqs_MHz,
+#         'times': rpw_times,
+#         'wavelength': a.Wavelength(rpw_freqs_MHz[0], rpw_freqs_MHz[-1]),
+#         'start_time': rpw_times[0],
+#         'end_time': rpw_times[-1]
+#     }
+#     rpw_spectro_sfu = Spectrogram(psd_sfu.T, meta)
+#     if bg_subtraction:
+#         rpw_spectro_sfu.data = dynspec.backSub(rpw_spectro_sfu.data.T).T
+#
+#     return rpw_spectro_sfu
+
 def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
-    # Open the CDF file
-    cdf = cdflib.CDF(cdf_file_path)
+    import spacepy.time as spt
+    from spacepy import pycdf
+    print("Opening RPW data with pycdf")
+    cdf = pycdf.CDF(cdf_file_path)
+    epoch = cdf["Epoch"]
+    frequency = cdf["FREQUENCY"]
+    background = cdf["BACKGROUND"]
+    sensor_config = cdf["SENSOR_CONFIG"]
+    channel = cdf["CHANNEL"]
+    timing = cdf["TIMING"]
+    quality_flag = cdf["QUALITY_FLAG"]
+    interpol_flags = cdf["INTERPOL_FLAG"]
+    psd_v2 = cdf["PSD_V2"]
+    psd_flux = cdf["PSD_FLUX"]
+    psd_sfu = cdf["PSD_SFU"]
+    lbl1_sc_pos_hci = cdf["LBL1_SC_POS_HCI"]
+    sc_pos_hci = cdf["SC_POS_HCI"]
+    rep1_sc_pos_hci = cdf["REP1_SC_POS_HCI"]
 
-    # List all variables in the CDF file
-    var_names = cdf.cdf_info()['zVariables']
 
-    print("Variables in the CDF file:", var_names)
+    epoch_dt = epoch[:]
 
-    epoch = cdf.varget("Epoch")
-    frequency = cdf.varget("FREQUENCY")
-    background = cdf.varget("BACKGROUND")
-    sensor_config = cdf.varget("SENSOR_CONFIG")
-    channel = cdf.varget("CHANNEL")
-    timing = cdf.varget("TIMING")
-    quality_flag = cdf.varget("QUALITY_FLAG")
-    interpol_flags = cdf.varget("INTERPOL_FLAG")
-    psd_v2 = cdf.varget("PSD_V2")
-    psd_flux = cdf.varget("PSD_FLUX")
-    psd_sfu = cdf.varget("PSD_SFU")
-    lbl1_sc_pos_hci = cdf.varget("LBL1_SC_POS_HCI")
-    sc_pos_hci = cdf.varget("SC_POS_HCI")
-    rep1_sc_pos_hci = cdf.varget("REP1_SC_POS_HCI")
-
-    j2000_start = dt.datetime(2000, 1, 1, 12, 0) + dt.timedelta(seconds=lighttravelshift)
-    epoch_dt = [j2000_start + dt.timedelta(microseconds=tt / 1000) for tt in epoch]
-
-    rpw_freqs_MHz = frequency / 1e6 * u.MHz
-    rpw_times = Time([dt.isoformat() for dt in epoch_dt])
+    rpw_freqs_MHz = frequency[:] / 1e6 * u.MHz
+    rpw_times = Time([(t_+dt.timedelta(seconds=lighttravelshift)).isoformat() for t_ in epoch_dt])
 
 
     meta = {
@@ -54,12 +98,10 @@ def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
         'start_time': rpw_times[0],
         'end_time': rpw_times[-1]
     }
-    rpw_spectro_sfu = Spectrogram(psd_sfu.T, meta)
+    rpw_spectro_sfu = Spectrogram(psd_sfu[:].T, meta)
     if bg_subtraction:
         rpw_spectro_sfu.data = dynspec.backSub(rpw_spectro_sfu.data.T).T
-
     return rpw_spectro_sfu
-
 
 
 if __name__=="__main__":
@@ -87,7 +129,7 @@ if __name__=="__main__":
 
     fig, axes = plt.subplots(1, 1, sharex=True, figsize=(20, 9))
     rpw_spectro_hfr.plot(axes=axes, norm=rpw_mm_hfr, cmap=my_cmap)
-    rpw_spectro_tnr.plot(axes=axes, norm=rpw_mm_tnr, cmap=my_cmap)
+    # rpw_spectro_tnr.plot(axes=axes, norm=rpw_mm_tnr, cmap=my_cmap)
 
     axes.set_title("SolO, RPW, TNR+HFR")
 

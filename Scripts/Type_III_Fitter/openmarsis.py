@@ -219,9 +219,13 @@ if __name__=='__main__':
     #
 
     #file_path = "./21380/DATA/ACTIVE_IONOSPHERIC_SOUNDER/FRM_AIS_RDR_21380_ASCII.DAT"  # 2020/11/30
-
-
-    file_path = "/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/2011_06_24/marsis_data/FRM_AIS_RDR_9544_ASCII.DAT"
+    # file_path = # file_path = # file_path = # file_path = #
+    file_path = "/Users/canizares/OneDrive/Work/0_PhD/Projects/dynSpectra/MARSIS/22648/FRM_AIS_RDR_22648_ASCII_.DAT"
+    # file_path ="/Users/canizares/OneDrive/Work/0_PhD/Projects/dynSpectra/MARSIS/22342/FRM_AIS_RDR_22342_ASCII_.DAT"
+    # file_path = "/Users/canizares/OneDrive/Work/0_PhD/Projects/dynSpectra/MARSIS/21380/DATA/ACTIVE_IONOSPHERIC_SOUNDER/FRM_AIS_RDR_21380_ASCII.DAT"
+    # file_path = "/Users/canizares/OneDrive/Work/0_PhD/Projects/dynSpectra/MARSIS/21342/DATA/ACTIVE_IONOSPHERIC_SOUNDER/FRM_AIS_RDR_21342_ASCII.DAT"
+    # file_path = "/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/2011_06_24/marsis_data/FRM_AIS_RDR_9544_ASCII.DAT"
+    # file_path = "/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/2021_12_04/mex_data/marsis/22648/FRM_AIS_RDR_22648_ASCII_.DAT"
     mars_spec = marsis_spectra(file_path, quickplot=True, histogram=[10, 92])
 
     mars_mm_h = np.percentile(mars_spec.data, [10,97])

@@ -409,7 +409,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
 
     plt.rcParams.update({'font.size': 15})
     plt.rc('legend', fontsize=15)
-    fig1 = plt.figure(figsize=(9, 6), dpi=150)
+    fig1 = plt.figure(figsize=(7, 8), dpi=150)
     frame1 = fig1.add_subplot(1, 1, 1)
     frame1.plot(x_date, y, 'bo')#, label="Data")
     label = "G-H Model"
@@ -421,7 +421,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
     t = (res['area'], res['mean'], res['dispersion'], res['skewness'], res['kurtosis'])
     title += "GH: $\gamma_{gh}$=%.1f $x_{0_{gh}}$=%.1f $\sigma_{gh}$ = %.2f $\\xi_1$=%.2f  $\\xi_f$=%.2f\n" % t
 
-    title += f"freq: {freq}MHz"
+    title += f"{freq:.2f} MHz"
 
     frame1.plot(xrise, yrise, 'r*')#, label="Detection")
     frame1.axvline(x=xrise, color='red', linestyle='--')
@@ -445,14 +445,18 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
         frame1.set_title(title, fontsize=15)
     else:
         freq_lab = f"{freq:.2f}"
+        # plt.text(.01, .95, f"{freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+
         if freq_lab == "0.28":
             plt.text(.01, .95, f"(a) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
         elif freq_lab == "1.42":
             plt.text(.01, .95, f"(b) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
         elif freq_lab == "1.98":
-            plt.text(.01, .95, f"(c) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+           plt.text(.01, .95, f"(c) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+        elif freq_lab == "0.12":
+            plt.text(.01, .95, f"(d) {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
         else:
-            plt.text(.01, .95, f"freq: {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
+            plt.text(.01, .95, f" {freq:.2f} MHz", ha='left', va='top', transform=frame1.transAxes)
 
     frame1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
     plt.gcf().autofmt_xdate()

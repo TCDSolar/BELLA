@@ -212,8 +212,8 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("HEE - X ($R_{\odot}$)", fontsize=22)
-    ax.set_ylabel("HEE - Y ($R_{\odot}$)", fontsize=22)
+    ax.set_xlabel("HEE - X (R$_\odot$)", fontsize=22)
+    ax.set_ylabel("HEE - Y (R$_\odot$)", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     if savefigure == True:
@@ -232,8 +232,10 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
 def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
                    vmin=0,vmax=30,
-                   spacecraft_labels=[],
-                   title="", figdir=f"./MapFigures", date_str="date",showcolorbar=True,showlegend=True, cbar_axes =[0.91, 0.5, 0.01, 0.35], objects =["earth_orbit", "earth", "sun", "spacecraft"] ):
+                   spacecraft_labels=[],cmap='plasma',
+                   title="", figdir=f"./MapFigures", date_str="date",showcolorbar=True,showlegend=True, cbar_axes =[0.91, 0.5, 0.01, 0.35], objects =["earth_orbit", "earth", "sun", "spacecraft"],
+                   linecolor = "k"):
+
 
     xres = xmapaxis[1]-xmapaxis[0]
     yres = ymapaxis[1]-ymapaxis[0]
@@ -242,18 +244,18 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     # fig, ax = plt.subplots(1,1,figsize=(11,11))
     # plt.subplots_adjust(top=1, bottom=0)
 
-    im_0 = ax.pcolormesh(xmapaxis, ymapaxis, delta_obs.T, cmap='plasma', shading='gouraud', vmin=vmin, vmax=vmax)
+    im_0 = ax.pcolormesh(xmapaxis, ymapaxis, delta_obs.T, cmap=cmap, shading='gouraud', vmin=vmin, vmax=vmax)
 
     # Uncomment to see where simulation failed.
     # im_fail = ax.pcolormesh(xmapaxis, ymapaxis, np.ma.masked_values(delta_obs,200).T, cmap='Greys', vmin=vmin, vmax=vmax)
 
     if "earth_orbit" in objects:
-        earth_orbit = plt.Circle((0, 0), au/R_sun + 5, color='k', linestyle="dashed", fill=None)
+        earth_orbit = plt.Circle((0, 0), au/R_sun + 5, color=linecolor, linestyle="dashed", fill=None)
         ax.add_patch(earth_orbit)
 
 
     if "spacecraft" in objects:
-        ax.scatter(stations[:,0], stations[:,1],color = "w", marker="^",edgecolors="k", s=180, label="Spacecraft")
+        ax.scatter(stations[:,0], stations[:,1], color = "w", marker="^", edgecolors="k", s=180, label="Spacecraft")
 
     if spacecraft_labels != []:
         i = 0
@@ -271,7 +273,7 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if showcolorbar == True:
         cbar_ax = fig.add_axes(cbar_axes) # [left, bottom, width, height]
         fig.colorbar(im_0, cax=cbar_ax)
-        cbar_ax.set_ylabel('BELLA uncertainty ($R_{\odot}$)', fontsize=18)
+        cbar_ax.set_ylabel('BELLA uncertainty (R$_\odot$)', fontsize=18)
         cbar_ax.tick_params(labelsize=15)
 
     if "earth" in objects:
@@ -282,8 +284,8 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if showlegend == True:
         ax.legend(loc=1)
 
-    ax.set_xlabel("HEE - X  ($R_{\odot}$)", fontsize=20)
-    ax.set_ylabel("HEE - Y  ($R_{\odot}$)", fontsize=20)
+    ax.set_xlabel("HEE - X  (R$_\odot$)", fontsize=20)
+    ax.set_ylabel("HEE - Y  (R$_\odot$)", fontsize=20)
     ax.set_title(title, fontsize=22)
 
 
@@ -291,7 +293,7 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
 
 
 
-def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, cbar_axes=[0.91, 0.1, 0.01, 0.35], marker=".",cmap="turbo", label="TOA BELLA",s=100, edgecolors="w",norm=[],zorder=1000):
+def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, cbar_sep_ax=True, cbar_axes=[0.91, 0.1, 0.01, 0.35], marker=".",cmap="turbo", label="TOA BELLA",s=100, edgecolors="w",norm=[],zorder=1000):
     xy_vals = np.array(list(trackedtypeIII.xy))
     xy = xy_vals/R_sun.value
     tracked_freqs = trackedtypeIII.freq
@@ -317,7 +319,7 @@ def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar
         for i in range(1, len(xy)):
             ell_track_uncertainty =matplotlib.patches.Ellipse(xy=(xy[i,0], xy[i,1]),
                       width=2*sd[i,0], height=2*sd[i,1],
-                      angle=0.,edgecolor=colors[i], lw=1.5)
+                      angle=0.,edgecolor=colors[i], lw=1.5, zorder=zorder-1)
 
             ell_track_uncertainty.set_facecolor('none')
 
@@ -327,15 +329,23 @@ def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar
     im_track = ax.scatter(xy[:,0], xy[:,1],c = tracked_freqs, cmap=cmap, marker=marker, edgecolors=edgecolors, s=s, label=label, norm=norm,zorder=zorder)
 
     if showcolorbar == True:
-        cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
-        formatter = LogFormatter(10, labelOnlyBase=False)
-        fig.colorbar(im_track, cax=cbar_ax2, format=formatter)
-        cbar_ax2.set_ylabel('Tracked beam freq (MHz)', fontsize=18)
+        if cbar_sep_ax:
+            cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
+            formatter = LogFormatter(10, labelOnlyBase=False)
+            fig.colorbar(im_track, cax=cbar_ax2, format=formatter)
+            cbar_ax2.set_ylabel('Tracked beam freq (MHz)', fontsize=18)
 
-        cbar_ax2.tick_params(axis='y', which='minor',labelsize=15)
-        cbar_ax2.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+            cbar_ax2.tick_params(axis='y', which='minor',labelsize=15)
+            cbar_ax2.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
 
-        cbar_ax2.tick_params(labelsize=15)
+            cbar_ax2.tick_params(labelsize=15)
+        else:
+            formatter = LogFormatter(10, labelOnlyBase=False)
+            cbar = fig.colorbar(im_track, ax=ax, format=formatter)
+            cbar.set_label('Tracked beam freq (MHz)', fontsize=18)
+            cbar.ax.tick_params(axis='y', which='minor', labelsize=15)
+            cbar.ax.yaxis.set_minor_formatter(FormatStrFormatter("%.1f"))
+            cbar.ax.tick_params(labelsize=15)
 
     return fig, ax
 def plot_typeIII_sim(fig, ax, trackedtypeIII, confidence=False, showcolorbar=True, showtruesources=True, cbar_axes=[0.91, 0.1, 0.01, 0.35], marker=".",cmap="turbo", label="TOA BELLA",s=100, edgecolors="w",norm=[],zorder=1000):
@@ -486,8 +496,23 @@ def parkerSpiral(r,phi0,v_sw=400, omega=2.662e-6, theta=0):
     buff = 1/b*(r-r0)
 
     phi = phi0 - buff
-
     return phi
+
+def archimedeanSpiral(r,phi0,v_sw=400, omega=2.662e-6, theta=0):
+    # http://www.physics.usyd.edu.au/~cairns/teaching/2010/lecture8_2010.pdf page 6
+    # r-r0 = -(v_sw/(omega*sin(theta)))(phi(r)*phi0)
+    phi0 = np.radians(phi0)
+    theta = np.radians(theta+90)
+    r_sun2km = R_sun.value/1000     #
+    r = r * r_sun2km
+    b=v_sw/(omega*np.sin(theta))
+    r0= 0
+    buff = 1/b*(r-r0)
+
+    phi = phi0 - buff
+    return phi
+
+
 def fit_parkerSpiral(r,phi0=0,v_sw=400, sol_rot=24.47):
     # http://www.physics.usyd.edu.au/~cairns/teaching/2010/lecture8_2010.pdf page 6
     # r-r0 = -(v_sw/(omega*sin(theta)))(phi(r)*phi0)
