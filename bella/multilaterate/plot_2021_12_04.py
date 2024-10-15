@@ -1,11 +1,27 @@
 import sys
+
 # caution: path[0] is reserved for script path (or '' in REPL)
 sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA/Scripts/multilaterate')
+# from math import sqrt, radians
+# import math
+# from joblib import Parallel, delayed
+import multiprocessing
+
 import bella_plotter as bplot
+import matplotlib.pyplot as plt
+import numpy as np
+import pymc3 as pm
+import solarmap
+# from scipy.stats import gaussian_kde
+# from scipy.ndimage import median_filter
+# from scipy.optimize import curve_fit
+# import scipy.io
+from scipy.ndimage import gaussian_filter
+
+from astropy.constants import R_sun, e
+
 # import bayes_positioner as bp
 
-import numpy as np
-import matplotlib.pyplot as plt
 # import matplotlib
 # import matplotlib.patheffects as PathEffects
 # from matplotlib import cm
@@ -15,23 +31,11 @@ import matplotlib.pyplot as plt
 #
 # import os
 
-import pymc3 as pm
-# from scipy.stats import gaussian_kde
-# from scipy.ndimage import median_filter
-# from scipy.optimize import curve_fit
-# import scipy.io
-from scipy.ndimage import gaussian_filter
 
-from astropy.constants import c, m_e, R_sun, e, eps0, au
 # import astropy.units as u
 
-import solarmap
 # import datetime as dt
 
-# from math import sqrt, radians
-# import math
-# from joblib import Parallel, delayed
-import multiprocessing
 
 # from contextlib import contextmanager
 # import sys, os
@@ -45,7 +49,7 @@ plt.rcParams["font.family"] = "Times New Roman"
 if __name__ == "__main__":
     __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
 
-    string ='Running on PyMC3 v{}'.format(pm.__version__)
+    string =f'Running on PyMC3 v{pm.__version__}'
     print(string)
 
     ncores_cpu = multiprocessing.cpu_count()
@@ -93,7 +97,7 @@ if __name__ == "__main__":
     year = 2021
     date_str = f"{year}_{month:02d}_{day:02d}"
 
-    sol_rot = 24.47;#27.2753
+    sol_rot = 24.47#27.2753
     omega = 2*3.1416/(sol_rot*24*60*60)
 
 
@@ -115,7 +119,7 @@ if __name__ == "__main__":
 
     # FILENAMES
     # BELLA MAP
-    filename_BELLA_MAP_4sc = f"./Data/BG_Maps/2021_12_04/results_-310_310_-310_310_10_10_4stations_WIND_STEA_SOLO_PSP_60s.pkl"
+    filename_BELLA_MAP_4sc = "./Data/BG_Maps/2021_12_04/results_-310_310_-310_310_10_10_4stations_WIND_STEA_SOLO_PSP_60s.pkl"
 
 
     # TRACKED TYPE III
@@ -235,4 +239,3 @@ if __name__ == "__main__":
     if savefigs == True:
         dir = bplot.mkdirectory("./Figures/")
         plt.savefig(dir+'BELLA_map_4spacecraft.png', dpi=300)
-

@@ -1,38 +1,27 @@
-from bayes_positioner import *
-
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patheffects as PathEffects
-from matplotlib import cm
-
-from matplotlib.animation import FuncAnimation, writers
-from matplotlib.ticker import FormatStrFormatter,LogFormatter
-
 import os
-
-# import pymc3 as pm
-from scipy.stats import gaussian_kde
-from scipy.ndimage import median_filter
-from scipy.optimize import curve_fit
-import scipy.io
-
-# import arviz as az
-from astropy.constants import c, m_e, R_sun, e, eps0, au
-import astropy.units as u
-
-import solarmap
-import datetime as dt
-
-from math import sqrt, radians
+import sys
 import math
-from joblib import Parallel, delayed
-import multiprocessing
-
-from contextlib import contextmanager
-import sys, os
 import logging
-import csv
+import datetime as dt
+import multiprocessing
+from contextlib import contextmanager
+
+import matplotlib
+import matplotlib.patheffects as PathEffects
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.io
+import solarmap
+from bayes_positioner import *
+from matplotlib import cm
+from matplotlib.ticker import FormatStrFormatter, LogFormatter
+# import pymc3 as pm
+from scipy.ndimage import median_filter
+
+import astropy.units as u
+# import arviz as az
+from astropy.constants import R_sun, au
+
 plt.rcParams.update({'font.size': 18})
 plt.rcParams["font.family"] = "Times New Roman"
 
@@ -82,7 +71,7 @@ def mkdirectory(directory):
 def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, stations,
                                 vmin=0,vmax=30,parker_spiral=False, v_sw=400,phi_sw=0, dphi=0,
                                 savefigure=False, showfigure=True,spacecraft=[], confidence=False,
-                                title="",figdir=f"./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
+                                title="",figdir="./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
 
 
     xy_vals = np.array(list(trackedtypeIII.xy))
@@ -146,7 +135,6 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
         # ax.plot(x_parker120, y_parker120,"k--")
         # ax.plot(x_parker240, y_parker240,"k--")
 
-    import scipy.io
     mat = scipy.io.loadmat('Data/2012_06_07/SEMP_spiral_results.mat')
     x_zhang = mat["x_ParkerSpiral_Cart"]
     y_zhang = mat["y_ParkerSpiral_Cart"]
@@ -212,8 +200,8 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("HEE - X (R$_\odot$)", fontsize=22)
-    ax.set_ylabel("HEE - Y (R$_\odot$)", fontsize=22)
+    ax.set_xlabel(r"HEE - X (R$_\odot$)", fontsize=22)
+    ax.set_ylabel(r"HEE - Y (R$_\odot$)", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     if savefigure == True:
@@ -233,7 +221,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
                    vmin=0,vmax=30,
                    spacecraft_labels=[],cmap='plasma',
-                   title="", figdir=f"./MapFigures", date_str="date",showcolorbar=True,showlegend=True, cbar_axes =[0.91, 0.5, 0.01, 0.35], objects =["earth_orbit", "earth", "sun", "spacecraft"],
+                   title="", figdir="./MapFigures", date_str="date",showcolorbar=True,showlegend=True, cbar_axes =[0.91, 0.5, 0.01, 0.35], objects =["earth_orbit", "earth", "sun", "spacecraft"],
                    linecolor = "k"):
 
 
@@ -273,7 +261,7 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if showcolorbar == True:
         cbar_ax = fig.add_axes(cbar_axes) # [left, bottom, width, height]
         fig.colorbar(im_0, cax=cbar_ax)
-        cbar_ax.set_ylabel('BELLA uncertainty (R$_\odot$)', fontsize=18)
+        cbar_ax.set_ylabel(r'BELLA uncertainty (R$_\odot$)', fontsize=18)
         cbar_ax.tick_params(labelsize=15)
 
     if "earth" in objects:
@@ -284,8 +272,8 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if showlegend == True:
         ax.legend(loc=1)
 
-    ax.set_xlabel("HEE - X  (R$_\odot$)", fontsize=20)
-    ax.set_ylabel("HEE - Y  (R$_\odot$)", fontsize=20)
+    ax.set_xlabel(r"HEE - X  (R$_\odot$)", fontsize=20)
+    ax.set_ylabel(r"HEE - Y  (R$_\odot$)", fontsize=20)
     ax.set_title(title, fontsize=22)
 
 
@@ -463,7 +451,7 @@ def interpolate_map(delta_obs, xmapaxis, ymapaxis, scale_factor=10, kind="linear
     return xnew,ynew, znew.T
 
 def simulation_report(title="",xrange=[], yrange=[], xres=0, yres=0, pixels=0, coresused=0, tstart=dt.datetime.now(), tfinal=dt.datetime.now(),writelog=True):
-    SIMREPORT = f""" 
+    SIMREPORT = f"""
     -------------------REPORT---------------------
     {title}
     Grid: X{xrange}, Y{yrange}
@@ -520,7 +508,7 @@ def fit_parkerSpiral(r,phi0=0,v_sw=400, sol_rot=24.47):
     theta = 0
     phi0 = np.radians(phi0)
     theta = np.radians(theta+90)
-    r_sun2km = 695700;     #
+    r_sun2km = 695700     #
     r = r * r_sun2km
     b=v_sw/(omega*np.sin(theta))
     r0= 1.0*r_sun2km
@@ -635,7 +623,7 @@ if __name__ == "__main__":
     date_str = f"{year}_{month:02d}_{day:02d}"
     # date_str = f"surround"
 
-    sol_rot = 24.47;#27.2753
+    sol_rot = 24.47#27.2753
     omega = 2*3.1416/(sol_rot*24*60*60)
 
 
@@ -660,7 +648,7 @@ if __name__ == "__main__":
 
     # FILENAMES
     # BELLA MAP
-    filename_BELLA_MAP = f"./Data/2012_06_07/results_-250_250_-250_250_10_10_3stations_60s.pkl"
+    filename_BELLA_MAP = "./Data/2012_06_07/results_-250_250_-250_250_10_10_3stations_60s.pkl"
     # TRACKED TYPE III
     trackedfile = "./Data/TRACKING_2012_06_07_results_3stations_LE_Freqs_0.15_2_HR.pkl"
     trackedfile_scatter = "./Data/TRACKING_2012_06_07_results_3stations_LE_Freqs_0.15_2_HR_SCATTER.pkl"
@@ -833,7 +821,3 @@ if __name__ == "__main__":
     #     plt.savefig('/Users/canizares/OneDrive/Work/0_PhD/Projects/2012_06_07_WSTASTB/BELLA_map_mosaic.png', dpi=300)
     #
     #
-
-
-
-

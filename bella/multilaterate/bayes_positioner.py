@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Mon Jun 17 15:27:04 2019
 @authors: Luis Alberto Canizares (adapted from benmosley)
@@ -7,31 +6,24 @@ Created on Mon Jun 17 15:27:04 2019
 
 """
 
-import numpy as np
+import os
+import datetime as dt
+import multiprocessing
+
+import arviz as az
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, writers
-from matplotlib.ticker import FormatStrFormatter,StrMethodFormatter
-
-
+import numpy as np
 import pymc3 as pm
-from scipy.stats import gaussian_kde
-import arviz as az
-from astropy.constants import c, m_e, R_sun, e, eps0, au
-from math import sqrt, radians
 
-import datetime as dt
-import solarmap
-import os
-import multiprocessing
-from scipy.stats import norm
+from astropy.constants import R_sun, au, c
 
 
 class BayesianTOAPositioner:
     """Class for carrying out Bayesian TOA positioning.
     Requires at least 3 stations (to solve for x,y,v,t1). 4 recommended.
     """
-    
+
     def __init__(self,
                  stations,
                  x_lim=1.5*au.value,# maximum box size (m)
@@ -43,12 +35,12 @@ class BayesianTOAPositioner:
         t_sd = t_cadence / 2  # standard deviation of observed values (s)
 
         t_lim = 24*60*60# np.sqrt(2)*x_lim/v_mu# resulting max toa value, used for t1 limit (s)     24*60*60     #
-        
+
         # check if well posed
         if len(stations)<4:
             print("WARNING: at least 4 stations recommended for bayesian toa positioning!")
 
-        
+
         self.x_lim = x_lim
         self.v_mu = v_mu
         self.v_sd = v_sd
@@ -56,27 +48,27 @@ class BayesianTOAPositioner:
         self.t_sd = t_sd
         self.t_lim = t_lim
         self.stations = stations
-        
+
     def sample(self, toa, draws=2000, tune=2000, chains=4,cores=4, init='jitter+adapt_diag', progressbar=True, verbose=True):
         "Carry out Bayesian inference"
-        
+
         x_lim = self.x_lim
         v_mu = self.v_mu
         v_sd = self.v_sd
         t_sd = self.t_sd
         t_lim = self.t_lim
         stations = self.stations
-        
+
         # assert correct number of observations
         if len(toa) != len(stations):
             raise Exception("ERROR: number of observations must match number of stations! (%i, %i)"%(len(toa), len(stations)))
-        
+
         # assert max toa is not larger than t_lim
-        if np.max(toa) > t_lim: 
+        if np.max(toa) > t_lim:
             raise Exception("ERROR: toa > t_lim")
 
         with pm.Model():  # CONTEXT MANAGER
-        
+
             # Priors
             # v = pm.TruncatedNormal("v", mu=v_mu, sigma=v_sd, upper=v_mu+v_sd)
             v = pm.Normal("v", mu=v_mu, sigma=v_sd)
@@ -89,7 +81,7 @@ class BayesianTOAPositioner:
             t1 = d/v                                                         # time of arrival of each receiver
 
             t = t1-t0                                                        # TOA dt
-            
+
             # Observations
             print(f"\nt: {t} \n t_sd: {t_sd} \n toa: {toa}")
             Y_obs = pm.Normal('Y_obs', mu=t, sd=t_sd, observed=toa)          # DATA LIKELIHOOD function
@@ -98,18 +90,18 @@ class BayesianTOAPositioner:
             # Posterior sampling
             #step = pm.HamiltonianMC()
             trace = pm.sample(draws=draws, tune=tune, chains=chains, cores=cores, target_accept=0.95, init=init, progressbar=progressbar,return_inferencedata=False)#, step=step)# i.e. tune for 1000 samples, then draw 5000 samples
-            
+
             summary = az.summary(trace)
-        
+
         mu = np.array(summary["mean"])
         sd = np.array(summary["sd"])
         # v_propa = np.array(summary[""])
-        
+
         if verbose:
             print("Percent divergent traces: %.2f %%"%(trace['diverging'].nonzero()[0].size / len(trace) * 100))
-        
+
         return trace, summary, mu, sd
-    
+
     def fit_xy_posterior(self, trace):
         """ returns position and uncertainty given a trace"""
         x_arr = trace['x'][:, 0]
@@ -259,8 +251,8 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         ax[2, 1].title.set_text('')
         ax[3, 1].title.set_text('')
 
-        ax[0, 0].set_xlabel('HEE - X ($R_{\odot}$)')
-        ax[1, 0].set_xlabel('HEE - Y ($R_{\odot}$)')
+        ax[0, 0].set_xlabel(r'HEE - X ($R_{\odot}$)')
+        ax[1, 0].set_xlabel(r'HEE - Y ($R_{\odot}$)')
         ax[2, 0].set_xlabel('v (c normalised)')
         ax[3, 0].set_xlabel('t0 (s)')
 
@@ -342,7 +334,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         if savetraceplot == True:
             t0 = times[0]
             if traceplotdir=="":
-                direct = mkdirectory(f"./Traceplots/")
+                direct = mkdirectory("./Traceplots/")
             else:
                 direct = mkdirectory(f"./Traceplots/{traceplotdir}")
 
@@ -375,8 +367,8 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         # plt.legend(loc=1)
         # plt.xlim(-1050, 1050)
         # plt.ylim(-1050, 1050)
-        plt.xlabel("'HEE - X / $R_{\odot}$'")
-        plt.ylabel("'HEE - Y / $R_{\odot}$'")
+        plt.xlabel(r"'HEE - X / $R_{\odot}$'")
+        plt.ylabel(r"'HEE - Y / $R_{\odot}$'")
         # plt.savefig("bayes_positioner_result2.jpg", bbox_inches='tight', pad_inches=0.01, dpi=300)
         if showplot==True:
             plt.show(block=False)
@@ -387,7 +379,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
 
 if __name__ == "__main__":
     __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
-    print('Running on PyMC3 v{}'.format(pm.__version__))
+    print(f'Running on PyMC3 v{pm.__version__}')
     save_vid = False
 
     ncores_cpu = multiprocessing.cpu_count()
@@ -471,8 +463,7 @@ if __name__ == "__main__":
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("'HEE - X / $R_{\odot}$'", fontsize=22)
-    ax.set_ylabel("'HEE - Y / $R_{\odot}$'", fontsize=22)
+    ax.set_xlabel(r"'HEE - X / $R_{\odot}$'", fontsize=22)
+    ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
 
     plt.show(block=False)
-

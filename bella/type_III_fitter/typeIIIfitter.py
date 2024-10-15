@@ -5,18 +5,22 @@
 #
 # Vog, 26 Mar 2012
 # ------------------------------------------------------------
-import numpy as np
-from scipy.special import wofz
-from scipy.optimize import fsolve
-from kapteyn import kmpfit    # https://www.astro.rug.nl/software/kapteyn/intro.html#installinstructions
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import os
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+from kapteyn import kmpfit  # https://www.astro.rug.nl/software/kapteyn/intro.html#installinstructions
+from scipy.optimize import fsolve
+from scipy.special import wofz
+
 ln2 = np.log(2)
 PI = np.pi
 from math import sqrt
 from datetime import datetime
+
 from scipy.optimize import curve_fit
+
 
 ##########################################################################
 #               GH fitting functions
@@ -153,7 +157,7 @@ def residualsGH(p, data):
 
 # def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
 #     """sdauto picks n number of points from max point as initial guess for standard deviation"""
-#     """ Recomended sigma 1 or 2"""
+#     """ Recommended sigma 1 or 2"""
 #     """ h3 - skewness ,  h4 - kurtosis"""
 #     N = len(y)
 #     err = np.ones(N)
@@ -213,7 +217,7 @@ def residualsGH(p, data):
 #         xrise = xd[maxfit_idx] - sigma*s
 #     elif method == "hwhm":
 #         # half width half maximum LHS
-#         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+#         # need to find nearest point in model because y is output not input, thus can't import into funcGH.
 #         # this is ok because we are under the resolution of the instrument
 #         ycheck = yfit[0:maxfit_idx]
 #         halfmax = (yfit[maxfit_idx] - z0GH)/2 + z0GH
@@ -221,7 +225,7 @@ def residualsGH(p, data):
 #         xrise = xd[y_hwhm_idx]
 #     elif method == "thirdmax":
 #         # half width third maximum LHS
-#         # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+#         # need to find nearest point in model because y is output not input, thus can't import into funcGH.
 #         # this is ok because we are under the resolution of the instrument
 #         ycheck = yfit[0:maxfit_idx]
 #         halfmax = (yfit[maxfit_idx] - z0GH)/3 + z0GH
@@ -291,12 +295,12 @@ def residualsGH(p, data):
 
 def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,method="sigma",profile="LE", plotresults=False, saveplots=False, dir="/lightcurves", fname="freq"):
     """sdauto picks n number of points from max point as initial guess for standard deviation"""
-    """ Recomended sigma 1 or 2"""
+    """ Recommended sigma 1 or 2"""
     """ h3 - skewness ,  h4 - kurtosis"""
     N = len(y)
     err = np.ones(N)
 
-    if not type(sdauto) is int:
+    if type(sdauto) is not int:
         raise TypeError("sdauto: Only integers are allowed")
     # Fit the Gauss-Hermite model
     # Initial estimates for A, xo, s, h3, h4, z0
@@ -352,7 +356,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
 
     elif method == "hwhm":
         # half width half maximum LHS (LE) and RHS(TE)
-        # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+        # need to find nearest point in model because y is output not input, thus can't import into funcGH.
         if profile == "LE":
             ycheck = yfit[0:maxfit_idx]
             ydetection = (yfit[maxfit_idx] - z0GH)/2 + z0GH
@@ -365,7 +369,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
             xrise = xd[maxfit_idx+y_quarter_idx]
     elif method == "thirdmax":
         # half width half maximum LHS (LE) and RHS(TE)
-        # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+        # need to find nearest point in model because y is output not input, thus can't import into funcGH.
         if profile == "LE":
             ycheck = yfit[0:maxfit_idx]
             ydetection = (yfit[maxfit_idx] - z0GH)/3 + z0GH
@@ -378,7 +382,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
             xrise = xd[maxfit_idx+y_quarter_idx]
     elif method == "quartermax":
         # half width half maximum LHS (LE) and RHS(TE)
-        # need to find nearest point in model because y is output not input, thus cant import into funcGH.
+        # need to find nearest point in model because y is output not input, thus can't import into funcGH.
         if profile == "LE":
             ycheck = yfit[0:maxfit_idx]
             ydetection = (yfit[maxfit_idx] - z0GH)/4 + z0GH
@@ -419,7 +423,7 @@ def fit_lc(x,y,freq,sigma=1, sdauto=2, h3guess=0.1, h4guess=0, z0guess = 1,metho
     frame1.set_ylabel("Relative power",fontsize=15)
     title = ""#"Profile with Gauss-Hermite model\n"
     t = (res['area'], res['mean'], res['dispersion'], res['skewness'], res['kurtosis'])
-    title += "GH: $\gamma_{gh}$=%.1f $x_{0_{gh}}$=%.1f $\sigma_{gh}$ = %.2f $\\xi_1$=%.2f  $\\xi_f$=%.2f\n" % t
+    title += "GH: $\\gamma_{gh}$=%.1f $x_{0_{gh}}$=%.1f $\\sigma_{gh}$ = %.2f $\\xi_1$=%.2f  $\\xi_f$=%.2f\n" % t
 
     title += f"{freq:.2f} MHz"
 
@@ -683,7 +687,7 @@ def fittypeIII(times, ydata):
 def typeIIIfitting(risetimes,testfreq, fitfreqs,freqs4tri, plot_residuals=False):
     """This function takes discrete frequencies and timestamps and returns fitted time data for input.
     fitfreqs  -  frequencies for extrapolated and interpolated fitting
-    freqs4tri -  the frquencies that will be used for multilateration"""
+    freqs4tri -  the frequencies that will be used for multilateration"""
     # Turning extracted datetimes into timestamps.
     # Timestamps are subtracted from reference point xref for management of data.
     xdata, xref = epoch2time(risetimes)
@@ -824,10 +828,3 @@ if __name__=="__main__":
     axes.set_xlim(datetime(YYYY, MM, dd, HH_0,mm_0), datetime(YYYY, MM, dd, 3,0))
     plt.subplots_adjust(hspace=0.31)
     plt.show(block=False)
-
-
-
-
-
-
-

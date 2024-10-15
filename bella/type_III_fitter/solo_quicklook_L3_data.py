@@ -1,12 +1,16 @@
 import datetime as dt
-from radiospectra.spectrogram import Spectrogram
-import astropy.units as u
-from sunpy.net import attrs as a
+
+import dynspec
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from astropy.visualization import ImageNormalize, PercentileInterval
+from radiospectra.spectrogram import Spectrogram
+
+import astropy.units as u
 from astropy.time import Time
-import dynspec
+from astropy.visualization import ImageNormalize, PercentileInterval
+
+from sunpy.net import attrs as a
+
 plt.rcParams.update({'font.size': 22})
 plt.rcParams.update({'font.family': "Times New Roman"})
 
@@ -87,7 +91,7 @@ def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
 
 
     meta = {
-        'observatory': f"SolO",
+        'observatory': "SolO",
         'instrument': "RPW",
         'detector': "RPW-HFR-SURV",
         'freqs': rpw_freqs_MHz,
@@ -133,7 +137,7 @@ if __name__=="__main__":
 
     axes.set_ylabel("Frequency (MHz)")
 
-    # # # by default y-axis low to hight flip so moving away fro sun with time
+    # # # by default y-axis low to height flip so moving away from sun with time
     axes.set_ylim(reversed(axes.get_ylim()))
 
     #
@@ -152,4 +156,3 @@ if __name__=="__main__":
 
     plt.tight_layout()
     plt.show(block=False)
-

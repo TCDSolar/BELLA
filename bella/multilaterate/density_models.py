@@ -1,8 +1,9 @@
+import matplotlib
 import numpy as np
+from matplotlib import pyplot as plt
+
 import astropy.constants as const
 import astropy.units as u
-from matplotlib import pyplot as plt
-import matplotlib
 
 matplotlib.rcParams.update({'font.size': 26})
 ###
@@ -134,6 +135,7 @@ def R_moncuquet(Ne) :
 
 from scipy.optimize import root_scalar
 
+
 def find_radius_parker(target_ne, calibration_factor=1):
     def difference(r):
         return Ne_parker(r)*calibration_factor - target_ne
@@ -206,11 +208,11 @@ if __name__ == "__main__":
     ax1.axhline(y=0.02, xmin=0, xmax=200)
     ax1.axvline(x=215, ymin=0, ymax=1, ls='--', c="k")
     ax1.axvline(x=2, ymin=0, ymax=1, ls='--', c="k")
-    ax1.text(1.6, 1200, "2 R$_\odot$")
-    ax1.text(150, 1200, "215 R$_\odot$")
+    ax1.text(1.6, 1200, r"2 R$_\odot$")
+    ax1.text(150, 1200, r"215 R$_\odot$")
     ax1.text(250, 26, "25 MHz")
     ax1.text(250, 0.03, "0.02 MHz")
-    ax1.set_xlabel("Distance from Sun (R$_\odot$)", fontsize=26)
+    ax1.set_xlabel(r"Distance from Sun (R$_\odot$)", fontsize=26)
     ax1.set_ylabel("Frequency (MHz)", fontsize=26)
     ax1.set_xscale('log')
     ax1.set_yscale('log')

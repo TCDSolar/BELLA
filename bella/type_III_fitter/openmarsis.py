@@ -1,19 +1,16 @@
-import numpy as np
 from datetime import datetime, timedelta
 
-import astropy.units as u
-
-from astropy.time import Time
-from astropy.io import fits
+import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.colors import LogNorm
+from radiospectra.spectrogram import Spectrogram  # in the process of updating old spectrogram
+from scipy.interpolate import RegularGridInterpolator
 
-from radiospectra import net #let Fido know about the radio clients
-from radiospectra.spectrogram import Spectrogram # in the process of updating old spectrogram
-from sunpy.net import Fido, attrs as a
+import astropy.units as u
+from astropy.time import Time
 
-from scipy.interpolate import interp2d, RegularGridInterpolator
-import dynspec
+from sunpy.net import attrs as a
+
+
 def resample_spectra(spectra, new_cadence=None, new_freq_resolution=None):
     """
     Resample a spectra object to a specified cadence and/or frequency resolution.
@@ -125,7 +122,7 @@ def marsis_spectra(file_path, quickplot=False, histogram=[], lighttravelshift=0)
         # Transmit power level is stored as integer, unused
         TransmitPowerLevel.append(int(each[4][23:-1]))
 
-        # Theres "higher time resolution spectra in each epoch point. Averaged this for simplicity.
+        # There's "higher time resolution spectra in each epoch point. Averaged this for simplicity.
         Spectra.append(np.array(each[5][:-2].split(' '), dtype=np.float64).mean())
 
     # Turning data lists into numpy arrays
@@ -143,7 +140,7 @@ def marsis_spectra(file_path, quickplot=False, histogram=[], lighttravelshift=0)
     # ADDING GAPS in data.
     # 1 - Calculates data cadence.
     # 2 - Searches for any gap in epoch larger than 2 cadences.
-    # 3 - Anywhere where theres a gap is filled with 0 values and new epoch points are added.
+    # 3 - Anywhere where there's a gap is filled with 0 values and new epoch points are added.
     # 4 - repeat #3 until all gaps are filled.
     t_diff = []
     for i in range(1, len(time_uniq)):

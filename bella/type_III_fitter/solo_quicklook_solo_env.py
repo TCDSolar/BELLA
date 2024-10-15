@@ -1,25 +1,25 @@
-import sunpy_soar
-from astropy.time import Time
-from astropy.visualization import ImageNormalize, PercentileInterval
-from sunpy_soar.attrs import Identifier
-from sunpy.net import Fido, attrs as a
-from matplotlib import pyplot as plt
+import os
+import pickle
+import argparse
+from datetime import datetime
+
 import matplotlib as mpl
-from matplotlib.colors import LogNorm
+import numpy as np
+from matplotlib import pyplot as plt
+from radiospectra.spectrogram import Spectrogram
+from sunpy_soar.attrs import Identifier
 
 import astropy.units as u
-import os
+from astropy.time import Time
+from astropy.visualization import ImageNormalize, PercentileInterval
 
-from radiospectra.spectrogram import Spectrogram
-from datetime import datetime
-import sys
-import argparse
-import numpy as np
-import pickle
+from sunpy.net import Fido
+from sunpy.net import attrs as a
+
 
 def backSub(data, percentile=1):
     """ Background subtraction:
-        This function has been modified from Eoin Carley's backsub funcion
+        This function has been modified from Eoin Carley's backsub function
         https://github.com/eoincarley/ilofar_scripts/blob/master/Python/bst/plot_spectro.py
 
         data:        numpy 2D matrix of floating values for dynamic spectra
@@ -36,7 +36,7 @@ def backSub(data, percentile=1):
         """
     # Get time slices with standard devs in the bottom nth percentile.
     # Get average spectra from these time slices.
-    # Devide through by this average spec.
+    # Divide through by this average spec.
     # Expects (row, column)
 
     print("Start of Background Subtraction of data")
@@ -120,7 +120,7 @@ if __name__=="__main__":
         rpw_psdarray = spectra.data
 
         meta = {
-            'observatory': f"SolO",
+            'observatory': "SolO",
             'instrument': "RPW",
             'detector': "RPW-HFR-SURV",
             'freqs': rpw_freqs_MHz,
@@ -142,7 +142,7 @@ if __name__=="__main__":
         rpw_psdarray = spectra.data
 
         meta = {
-            'observatory': f"SolO",
+            'observatory': "SolO",
             'instrument': "RPW",
             'detector': "RPW-HFR-SURV",
             'freqs': rpw_freqs_MHz,
@@ -181,7 +181,7 @@ if __name__=="__main__":
     axes[0].set_ylabel("Frequency (MHz)")
     axes[1].set_ylabel("Frequency (MHz)")
 
-    # # # by default y-axis low to hight flip so moving away fro sun with time
+    # # # by default y-axis low to height flip so moving away from sun with time
     axes[0].set_ylim(reversed(axes[0].get_ylim()))
     axes[1].set_ylim(reversed(axes[1].get_ylim()))
 
@@ -208,5 +208,3 @@ if __name__=="__main__":
         directory = mkdirectory("solo_data/RPW/")
         with open(f'{directory}rpw_extracted_radiospectra_{YYYY}{MM:02}{dd:02}.pkl', 'wb') as output_file:
             pickle.dump(data, output_file)
-
-

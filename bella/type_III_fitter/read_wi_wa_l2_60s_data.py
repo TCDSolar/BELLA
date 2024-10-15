@@ -1,18 +1,14 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Python 3 module to read a Wind/Waves L2 60S averaged data file.
 """
 
-# ________________ IMPORT _________________________
-# (Include here the modules to import, e.g. import sys)
-import sys
-import os
-import re
-from datetime import datetime
 import struct
 import logging
+# ________________ IMPORT _________________________
+# (Include here the modules to import, e.g. import sys)
+from datetime import datetime
 
 # ________________ HEADER _________________________
 
@@ -131,7 +127,7 @@ def read_l2_60s(filepath,
                 nsweep += 1
                 nsample += len(freq)
 
-    logger.info('{0} samples extracted from {1}'.format(nsample, filepath))
+    logger.info(f'{nsample} samples extracted from {filepath}')
 
     if to_array:
         try:

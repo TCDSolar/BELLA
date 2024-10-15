@@ -1,16 +1,21 @@
 #
 from datetime import datetime, timedelta
+
+import numpy as np
+from matplotlib import pyplot as plt
+
 #
 import astropy.units as u
-import numpy as np
-
 from astropy.time import Time
-from matplotlib import pyplot as plt
-from matplotlib.colors import LogNorm
+
 plt.rcParams.update({'font.size': 22})
 plt.rcParams.update({'font.family': "Times New Roman"})
+# import pickle
+import argparse
+
 import pyspedas  # pip install git+https://github.com/STBadman/pyspedas
 from pytplot import get_data
+from radiospectra.spectrogram import Spectrogram  # in the process of updating old spectrogram
 
 # from matplotlib.ticker import FormatStrFormatter,LogFormatter
 #
@@ -21,16 +26,12 @@ from pytplot import get_data
 # r_sun = R_sun.value
 # AU=au.value
 #
-from sunpy.net import Fido, attrs as a
-from radiospectra.spectrogram import Spectrogram # in the process of updating old spectrogram
-# import pickle
-import sys
-import argparse
+from sunpy.net import attrs as a
 
 
 def backSub(data, percentile=1):
     """ Background subtraction:
-        This function has been modified from Eoin Carley's backsub funcion
+        This function has been modified from Eoin Carley's backsub function
         https://github.com/eoincarley/ilofar_scripts/blob/master/Python/bst/plot_spectro.py
 
         data:        numpy 2D matrix of floating values for dynamic spectra
@@ -47,7 +48,7 @@ def backSub(data, percentile=1):
         """
     # Get time slices with standard devs in the bottom nth percentile.
     # Get average spectra from these time slices.
-    # Devide through by this average spec.
+    # Divide through by this average spec.
     # Expects (row, column)
 
     print("Start of Background Subtraction of data")
@@ -215,7 +216,7 @@ def rfs_spec(start, endt, datatype='rfs_hfr', bg_subtraction=False, lighttravels
 
     rfs_psdarray = rfs_data.y
     meta = {
-        'observatory': f"psp",
+        'observatory': "psp",
         'instrument': "FIELDS",
         'detector': datatype.upper(),
         'freqs': rfs_freqs_MHz,
@@ -356,7 +357,3 @@ if __name__=="__main__":
     plt.subplots_adjust(hspace=0.31)
     plt.tight_layout()
     plt.show(block=False)
-
-
-
-

@@ -4,7 +4,7 @@ exclude = [
   ".git,",
   "__pycache__",
   "build",
-  "BELLA/version.py",
+  "bella/version.py",
 ]
 
 [lint]

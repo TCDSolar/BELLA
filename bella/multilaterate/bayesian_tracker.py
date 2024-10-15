@@ -1,40 +1,27 @@
 
 # Standard Library imports
-from astropy.constants import c, m_e, R_sun, e, eps0, au
-from contextlib import contextmanager
-import datetime as dt
-import datetime
-from math import sqrt, radians
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, writers
-import numpy as np
 import os
-from scipy.stats import gaussian_kde
-from scipy.ndimage import median_filter
 import sys
-
+# General
+import logging
+import datetime as dt
+# Parallel processing imports
+import multiprocessing
+from math import sqrt, radians
+from contextlib import contextmanager
 
 # Third Party imports
 # BAYESIAN IMPORTS
 import arviz as az
+import matplotlib.pyplot as plt
+import numpy as np
 import pymc3 as pm
-
-# Parallel processing imports
-from joblib import Parallel, delayed
-import multiprocessing
-
-# General
-import logging
 import solarmap
-
-
 # Local imports
 from bayes_positioner import *
+from scipy.ndimage import median_filter
 
-
-
-
+from astropy.constants import R_sun, au, c
 
 
 @contextmanager
@@ -57,7 +44,7 @@ def mkdirectory(directory):
         print("The new directory is created!")
     return dir
 
-def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplotsave=False, figdir=f"./traceplots", date_str="date"):
+def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplotsave=False, figdir="./traceplots", date_str="date"):
     tloop0 = dt.datetime.now()
     try:
         currentloop = f"""x, y : {x1},{y1}"""
@@ -124,7 +111,7 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplots
 
 def parallel_tracker(freq,t_obs, stations ):
     tloop0 = dt.datetime.now()
-    print(f"parallel_tracker(freq,t_obs, stations )")
+    print("parallel_tracker(freq,t_obs, stations )")
     print(f"parallel_tracker({freq},"
           f"{t_obs}, "
           f"{stations} )")
@@ -157,7 +144,7 @@ def parallel_tracker(freq,t_obs, stations ):
     return res
 
 
-def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, savefigure=False, showfigure=True, title="",figdir=f"./MapFigures", date_str="date"):
+def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, savefigure=False, showfigure=True, title="",figdir="./MapFigures", date_str="date"):
     xres = xmapaxis[1]-xmapaxis[0]
     yres = ymapaxis[1]-ymapaxis[0]
     N_STATIONS = len(stations)
@@ -187,8 +174,8 @@ def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, save
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("'HEE - X / $R_{\odot}$'", fontsize=22)
-    ax.set_ylabel("'HEE - Y / $R_{\odot}$'", fontsize=22)
+    ax.set_xlabel(r"'HEE - X / $R_{\odot}$'", fontsize=22)
+    ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     if savefigure == True:
@@ -201,7 +188,7 @@ def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, save
     else:
         plt.close(fig)
 
-def savedata(delta_obs, xmapaxis, ymapaxis, stations,dir=f"./Data", date_str="date"):
+def savedata(delta_obs, xmapaxis, ymapaxis, stations,dir="./Data", date_str="date"):
     import pickle
     mkdirectory(dir+f"/{date_str}")
 
@@ -214,7 +201,7 @@ def savedata(delta_obs, xmapaxis, ymapaxis, stations,dir=f"./Data", date_str="da
     with open(dir+f"/{date_str}"+f'/results_{xmapaxis[0]}_{xmapaxis[-1]}_{ymapaxis[0]}_{ymapaxis[-1]}_{xres}_{yres}_{N_STATIONS}stations.pkl', 'wb') as outp:
         pickle.dump(results, outp, pickle.HIGHEST_PROTOCOL)
 
-def savetrackedtypeiii(results, dir=f"./Data/", date_str="date", profile="PROFILE",N_STATIONS=0, title=""):
+def savetrackedtypeiii(results, dir="./Data/", date_str="date", profile="PROFILE",N_STATIONS=0, title=""):
     import pickle
 
     if title=="":
@@ -307,7 +294,7 @@ def interpolate_map(delta_obs, xmapaxis, ymapaxis, scale_factor=10, kind="linear
     return xnew,ynew, znew.T
 
 def simulation_report(title="",xrange=[], yrange=[], xres=0, yres=0, pixels=0, coresused=0, tstart=dt.datetime.now(), tfinal=dt.datetime.now(),writelog=True):
-    SIMREPORT = f""" 
+    SIMREPORT = f"""
     -------------------REPORT---------------------
     {title}
     Grid: X{xrange}, Y{yrange}
@@ -333,7 +320,7 @@ def medfil(*args, **kwargs):
 if __name__ == "__main__":
     __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
 
-    string ='Running on PyMC3 v{}'.format(pm.__version__)
+    string =f'Running on PyMC3 v{pm.__version__}'
     print(string)
 
     #DATA
@@ -434,4 +421,3 @@ if __name__ == "__main__":
     results = np.array(results)
 
     savetrackedtypeiii(results, date_str=date_str)
-

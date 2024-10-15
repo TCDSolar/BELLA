@@ -1,4 +1,3 @@
-import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
 
 # Point to the multilaterate directory if running from different directory
@@ -8,41 +7,23 @@ import sys
 # from bayesian_tracker import *
 # from bayes_positioner import *
 
-import bayesian_tracker as btrack
-import bayes_positioner as bp
-
-
-
-# Standard Library imports
-from astropy.constants import c, m_e, R_sun, e, eps0, au
-from contextlib import contextmanager
-import datetime as dt
-import datetime
-from math import sqrt, radians
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, writers
-import numpy as np
-import os
-from scipy.stats import gaussian_kde
-from scipy.ndimage import median_filter
-import sys
 import argparse
-
-
-# Third Party imports
-# BAYESIAN IMPORTS
-import arviz as az
-import pymc3 as pm
-
+import datetime
+import datetime as dt
 # Parallel processing imports
-from joblib import Parallel, delayed
 import multiprocessing
 
+import bayes_positioner as bp
+import bayesian_tracker as btrack
+import numpy as np
+# Third Party imports
+# BAYESIAN IMPORTS
+import pymc3 as pm
 # General
 import solarmap
 
-import concurrent.futures
+# Standard Library imports
+from astropy.constants import R_sun, c
 
     # if "wind" in spacecraft:
     # if "stereo_a" in spacecraft:
@@ -68,7 +49,7 @@ if __name__ == "__main__":
 
     __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
 
-    string ='Running on PyMC3 v{}'.format(pm.__version__)
+    string =f'Running on PyMC3 v{pm.__version__}'
     print(string)
     # Date of the observation
     day = 4
@@ -137,7 +118,7 @@ if __name__ == "__main__":
 
 
     if not args.profile:
-        profile = "LE"     # BB - Backbone or LE leading edge or TE trailin edge
+        profile = "LE"     # BB - Backbone or LE leading edge or TE trailing edge
     else:
         profile = args.profile
 
@@ -167,7 +148,7 @@ if __name__ == "__main__":
 
     typeiiifile += f"{sc_str}_Freqs_{freqlimmin}_{freqlimmax}_{profile}"
     if note == "":
-        typeiiifile += f".pkl"
+        typeiiifile += ".pkl"
     else:
         typeiiifile += f"_{note}.pkl"
 
@@ -310,7 +291,7 @@ if __name__ == "__main__":
                 mu, sd, t1_pred, trace, summary, t_emission_fromtrace, v_analysis = bp.triangulate(stations, typeIII_times[i_freq], t_cadence=60, v_sd=0.0001*c.value, cores=4, progressbar=True, report=0, plot=0,traceplot=True, savetraceplot=True, traceplotdir=f'{sc_str}_{profile}_{note}', traceplotfn=f'{i_freq}.jpg')
                 check = True
             except:
-                print(f"MULTILATERATION FAILED, most likely by divergance, try again")
+                print("MULTILATERATION FAILED, most likely by divergance, try again")
                 pass
 
         tloop1 = dt.datetime.now()
@@ -391,4 +372,3 @@ if __name__ == "__main__":
     # stations_rsun = array([[ 216.3864883 ,   -0.82640064], [  76.26846667, -192.1493994 ],[ 143.14674755,   62.28368691],[ -38.28536325,  125.55611214]])
     # t_1MHz = [658, 621, 568, 480]
     # t_3MHz  = [627, 540, 559, 480]
-

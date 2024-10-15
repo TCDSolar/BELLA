@@ -1,36 +1,32 @@
+import os
 import sys
+import math
+import logging
+import argparse
+import datetime as dt
+import multiprocessing
+from math import radians
+from contextlib import contextmanager
+
+import arviz as az
 # caution: path[0] is reserved for script path (or '' in REPL)
 # IF running from a different directory, point to the multilaterate directory with bayes_positioner.py file
 #sys.path.insert(1, 'PATH/TO/Multilateratefolder')
 import bayes_positioner as bp
-import numpy as np
 import matplotlib
-import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
-from matplotlib import cm
-
+import matplotlib.pyplot as plt
+import numpy as np
 import pymc3 as pm
-from scipy.stats import gaussian_kde
-from scipy.ndimage import median_filter
-from scipy.optimize import curve_fit
 import scipy.io
-from scipy import interpolate
-
-import arviz as az
-from astropy.constants import c, m_e, R_sun, e, eps0, au
 import solarmap
-import datetime as dt
-
-from math import sqrt, radians
-import math
 from joblib import Parallel, delayed
-import multiprocessing
-
-from contextlib import contextmanager
-import os
-import logging
+from matplotlib import cm
+from scipy import interpolate
+from scipy.ndimage import median_filter
 from termcolor import colored
-import argparse
+
+from astropy.constants import R_sun, au, c
 
 
 @contextmanager
@@ -52,7 +48,7 @@ def mkdirectory(directory):
         os.makedirs(dir)
         print("The new directory is created!")
 
-def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=1, traceplotsave=False, figdir=f"./traceplots", date_str="date"):
+def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=1, traceplotsave=False, figdir="./traceplots", date_str="date"):
     tloop0 = dt.datetime.now()
     try:
         mesh = {}
@@ -143,13 +139,13 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
     tloopinseconds = (tloop1 - tloop0).total_seconds()
     print(f"Time Loop : {tloop1 - tloop0}   :   {tloopinseconds}s  \n  loop {mesh[x1,y1]}/{len(mesh)} DONE ")
 
-    estimated_t_left = tloopinseconds*((len(mesh) - mesh[x1,y1]))/(multiprocessing.cpu_count())
+    estimated_t_left = tloopinseconds*(len(mesh) - mesh[x1,y1])/(multiprocessing.cpu_count())
     estimated_t_left_timedelta = dt.timedelta(seconds=estimated_t_left)
     print(f"{colored('Estimated time left', 'yellow')}: {estimated_t_left_timedelta} ")
 
     return res
 
-def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, savefigure=False, showfigure=True, title="",figdir=f"./MapFigures", date_str="date", filename="fig.jpg"):
+def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, savefigure=False, showfigure=True, title="",figdir="./MapFigures", date_str="date", filename="fig.jpg"):
     xres = xmapaxis[1]-xmapaxis[0]
     yres = ymapaxis[1]-ymapaxis[0]
     N_STATIONS = len(stations)
@@ -179,8 +175,8 @@ def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, save
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("'HEE - X / $R_{\odot}$'", fontsize=22)
-    ax.set_ylabel("'HEE - Y / $R_{\odot}$'", fontsize=22)
+    ax.set_xlabel(r"'HEE - X / $R_{\odot}$'", fontsize=22)
+    ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     if savefigure == True:
@@ -211,7 +207,7 @@ def cartesian_to_polar(x, y):
 def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, stations,
                                 vmin=0,vmax=30,parker_spiral=False, v_sw=400,phi_sw=0, dphi=0,
                                 savefigure=False, showfigure=True,spacecraft=[], confidence=False,
-                                title="",figdir=f"./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
+                                title="",figdir="./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
 
 
     xy_vals = np.array(list(trackedtypeIII.xy))
@@ -340,8 +336,8 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("'HEE - X / $R_{\odot}$'", fontsize=22)
-    ax.set_ylabel("'HEE - Y / $R_{\odot}$'", fontsize=22)
+    ax.set_xlabel(r"'HEE - X / $R_{\odot}$'", fontsize=22)
+    ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     if savefigure == True:
@@ -359,7 +355,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 def plot_map_simple_withTracked_zoom(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, stations,
                                 vmin=0,vmax=30,v_sw=400,phi_sw=0, dphi=0,
                                 savefigure=False, showfigure=True,
-                                title="",figdir=f"./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
+                                title="",figdir="./MapFigures", date_str="date", filename="fig_Tracked.jpg"):
 
     xy_vals = np.array(list(trackedtypeIII.xy))
     xy = xy_vals/R_sun.value
@@ -463,8 +459,8 @@ def plot_map_simple_withTracked_zoom(delta_obs, trackedtypeIII, xmapaxis, ymapax
 
     ax.legend(loc=1)
 
-    ax.set_xlabel("'HEE - X / $R_{\odot}$'", fontsize=22)
-    ax.set_ylabel("'HEE - Y / $R_{\odot}$'", fontsize=22)
+    ax.set_xlabel(r"'HEE - X / $R_{\odot}$'", fontsize=22)
+    ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
     axins = ax.inset_axes([0.01, 0.01, 0.5, 0.5])
@@ -560,7 +556,7 @@ def interpolate_map(delta_obs, xmapaxis, ymapaxis, scale_factor=10, kind="linear
     return xnew,ynew, znew.T
 
 def simulation_report(title="",xrange=[], yrange=[], xres=0, yres=0, pixels=0, coresused=0, tstart=dt.datetime.now(), tfinal=dt.datetime.now(),writelog=True):
-    SIMREPORT = f""" 
+    SIMREPORT = f"""
     -------------------REPORT---------------------
     {title}
     Grid: X{xrange}, Y{yrange}
@@ -586,7 +582,7 @@ def parkerSpiral(r,phi0,v_sw=400, omega=2.662e-6, theta=0):
     # r-r0 = -(v_sw/(omega*sin(theta)))(phi(r)*phi0)
     phi0 = np.radians(phi0)
     theta = np.radians(theta+90)
-    r_sun2km = 695700;     #
+    r_sun2km = 695700     #
     r = r * r_sun2km
     b=v_sw/(omega*np.sin(theta))
     r0= 1.0*r_sun2km
@@ -630,7 +626,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     __spec__ = "ModuleSpec(name='builtins', loader=<class '_frozen_importlib.BuiltinImporter'>)"
 
-    string ='Running on PyMC3 v{}'.format(pm.__version__)
+    string =f'Running on PyMC3 v{pm.__version__}'
     print(string)
 
     ncores_cpu = multiprocessing.cpu_count()
@@ -837,7 +833,7 @@ if __name__ == "__main__":
     else:
         filename = f"./Data/BG_Maps/{date_str}/results_{xrange[0]}_{xrange[-1]}_{yrange[0]}_{yrange[-1]}_{xres}_{yres}_{N_STATIONS}stations{sc_str}_{cadence}s.pkl"
 
-    #Doesnt make sense to save data or run flagged points if simulation is off.
+    # Does not make sense to save data or run flagged points if simulation is off.
     if runsimulation == False:
         run_savedata = False
         run_failed_again = False
@@ -845,7 +841,7 @@ if __name__ == "__main__":
             #Check if data exists
             isExist = os.path.exists(filename)
             if not isExist:
-                # If data doesnt exist run simulation?
+                # If data does not exist run simulation?
                 runsimans = input("The data you are looking for does not exist. Run simulation? y/n:   ")
                 if runsimans.casefold() in yesanswer:
                     runsimulation = True
@@ -893,7 +889,7 @@ if __name__ == "__main__":
 
 
         results = Parallel(n_jobs=coresforloop, verbose=100)(delayed(parallel_pos_map)(i, j, stations=stations, xrange=xrange,
-                                                                                       yrange=yrange, xres=xres, yres=yres, t_cadence=cadence, figdir=f"./traceplots",
+                                                                                       yrange=yrange, xres=xres, yres=yres, t_cadence=cadence, figdir="./traceplots",
                                                                                        date_str=date_str) for i in xmapaxis for j in ymapaxis)
         delta_obs=np.array(results)[:,0]
         flaggedpoints = np.array(results)[:,1:]
@@ -939,5 +935,3 @@ if __name__ == "__main__":
         fname = f"/bayes_positioner_map_median_{xrange[0]}_{xrange[-1]}_{yrange[0]}_{yrange[-1]}_{xres}_{yres}_{N_STATIONS}.jpg"
         plot_map_simple(median_filter_image, xmapaxis, ymapaxis, stations_rsun,vmin=np.min(median_filter_image), vmax=np.max(median_filter_image), savefigure=True, date_str=date_str,filename=fname)
     """  ---------------------------------------------------------------------   """
-
-

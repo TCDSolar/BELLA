@@ -1,25 +1,26 @@
 import argparse
-import numpy as np
-import cdflib
-from matplotlib import pyplot as plt, dates as mdates
-from matplotlib.colors import LogNorm
-import matplotlib as mpl
+from datetime import datetime, timedelta
 
+import cdflib
+import matplotlib as mpl
+import numpy as np
+import pyspedas
+from matplotlib import dates as mdates
+from matplotlib import pyplot as plt
+from matplotlib.colors import LogNorm
+from pytplot import get_data
 from scipy import stats
 from scipy.interpolate import interp2d
-import pyspedas
-from pytplot import get_data
-from astropy.time import Time
-from astropy.constants import c, m_e, R_sun, e, eps0, au
+
 import astropy.units as u
-from datetime import datetime
-from datetime import timedelta
+from astropy.constants import R_sun, au
+from astropy.time import Time
+
 r_sun = R_sun.value
 AU=au.value
-from sunpy.net import Fido, attrs as a
-from radiospectra import net #let Fido know about the radio clients
-from radiospectra.spectrogram import Spectrogram # in the process of updating old spectrogram
+from radiospectra.spectrogram import Spectrogram  # in the process of updating old spectrogram
 
+from sunpy.net import attrs as a
 
 
 ##########################################################################
@@ -53,7 +54,7 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False, lighttravelshi
     spectrogram object includes metadata such as the observatory, instrument, detector, frequencies, and time range.
     """
     wind_variables = pyspedas.wind.waves([start.strftime("%m/%d/%Y %H:%M:%S"), endt.strftime("%m/%d/%Y %H:%M:%S")])
-    print(f"Wind WAVES downloaded: wind_variables:")
+    print("Wind WAVES downloaded: wind_variables:")
     print(wind_variables)
     waves_data = get_data(f'E_VOLTAGE_{datatype}')
 
@@ -73,7 +74,7 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False, lighttravelshi
         waves_psdarray = waves_data.y
 
     meta = {
-        'observatory': f"WIND",
+        'observatory': "WIND",
         'instrument': "WAVES",
         'detector': datatype,
         'freqs': waves_freqs_MHz,
@@ -110,7 +111,7 @@ def local_waves_spec_l2_60s(file, datatype='RAD1', kind='SMEAN', bg_subtraction=
         waves_psdarray = data[kind]
 
     meta = {
-        'observatory': f"WIND",
+        'observatory': "WIND",
         'instrument': "WAVES",
         'detector': datatype,
         'freqs': waves_freqs_MHz[:-1],
@@ -367,7 +368,7 @@ def solo_rpw_hfr(filepath):
 ##########################################################################
 def backSub(data, percentile=1):
     """ Background subtraction:
-        This function has been modified from Eoin Carley's backsub funcion
+        This function has been modified from Eoin Carley's backsub function
         https://github.com/eoincarley/ilofar_scripts/blob/master/Python/bst/plot_spectro.py
 
         data:        numpy 2D matrix of floating values for dynamic spectra
@@ -384,7 +385,7 @@ def backSub(data, percentile=1):
         """
     # Get time slices with standard devs in the bottom nth percentile.
     # Get average spectra from these time slices.
-    # Devide through by this average spec.
+    # Divide through by this average spec.
     # Expects (row, column)
 
     print("Start of Background Subtraction of data")
@@ -560,7 +561,7 @@ if __name__=="__main__":
     # FILL BLANK GAP
     freqs_fill = [waves_spec_lfr.frequencies[-1].value,waves_spec_hfr.frequencies[0].value]* u.MHz
     meta = {
-        'observatory': f"WIND_fill",
+        'observatory': "WIND_fill",
         'instrument': "WAVES_fill",
         'detector': "RAD2",
         'freqs': freqs_fill,
@@ -612,7 +613,7 @@ if __name__=="__main__":
     axes[1].set_ylabel("Frequency (MHz)")
     axes[2].set_ylabel("Frequency (MHz)")
 
-    # # # by default y-axis low to hight flip so moving away fro sun with time
+    # # # by default y-axis low to height flip so moving away from sun with time
     axes[0].set_ylim(reversed(axes[0].get_ylim()))
     axes[1].set_ylim(reversed(axes[1].get_ylim()))
     axes[2].set_ylim(reversed(axes[2].get_ylim()))
@@ -635,4 +636,3 @@ if __name__=="__main__":
 
     plt.tight_layout()
     plt.show(block=False)
-

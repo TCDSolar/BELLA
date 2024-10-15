@@ -1,46 +1,39 @@
 # Author: L Alberto Canizares canizares (at) cp.dias.ie
 from datetime import datetime, timedelta
 
-import astropy.units as u
 import numpy as np
-from scipy import stats
-from scipy.optimize import curve_fit
-from scipy.interpolate import interp1d, UnivariateSpline
-from scipy.interpolate import CubicSpline
-from numpy import interp
 import pyspedas
-from pytplot import get_data
-from spacepy import pycdf
-
-from astropy.time import Time
-from astropy.io import fits
 from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from numpy import interp
+from pytplot import get_data
+from scipy import stats
+from scipy.interpolate import CubicSpline
+from scipy.optimize import curve_fit
+
+import astropy.units as u
+from astropy.time import Time
+
 plt.rcParams.update({'font.size': 22})
-from matplotlib.ticker import FormatStrFormatter,LogFormatter
+from matplotlib.ticker import FormatStrFormatter
 
-from datetime import datetime
-from datetime import timedelta
+from astropy.constants import R_sun, au
 
-from astropy.constants import c, m_e, R_sun, e, eps0, au
 r_sun = R_sun.value
 AU=au.value
 
-from sunpy.net import Fido, attrs as a
-
-from radiospectra import net #let Fido know about the radio clients
-from radiospectra.spectrogram import Spectrogram # in the process of updating old spectrogram
+import pickle
 
 import cdflib
+from radiospectra.spectrogram import Spectrogram  # in the process of updating old spectrogram
+from typeIIIfitter import *
+
+from sunpy.net import attrs as a
+
 # from spacepy import pycdf
 
 # from rpw_mono.thr.hfr.reader import read_hfr_autoch
 
-from typeIIIfitter import *
-from maser.data import Data
-import solarmap
-import pickle
-import os
 
 def f_to_angs(f_mhz,c=299792458):
     angstrom = (c / (f_mhz * 10 ** 6)) * 10 ** 10
@@ -48,7 +41,7 @@ def f_to_angs(f_mhz,c=299792458):
 
 def backSub(data, percentile=1):
     """ Background subtraction:
-        This function has been modified from Eoin Carley's backsub funcion
+        This function has been modified from Eoin Carley's backsub function
         https://github.com/eoincarley/ilofar_scripts/blob/master/Python/bst/plot_spectro.py
 
         data:        numpy 2D matrix of floating values for dynamic spectra
@@ -65,7 +58,7 @@ def backSub(data, percentile=1):
         """
     # Get time slices with standard devs in the bottom nth percentile.
     # Get average spectra from these time slices.
-    # Devide through by this average spec.
+    # Divide through by this average spec.
     # Expects (row, column)
 
     print("Start of Background Subtraction of data")
@@ -159,7 +152,8 @@ def check_cadence(times, plot=True, method="mode", title=""):
 
 
     if plot==True:
-        from matplotlib import pyplot as plt, dates as mdates
+        from matplotlib import dates as mdates
+        from matplotlib import pyplot as plt
 
         plt.figure()
         ax = plt.gca()
@@ -278,7 +272,7 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False):
     spectrogram object includes metadata such as the observatory, instrument, detector, frequencies, and time range.
     """
     wind_variables = pyspedas.wind.waves([start.strftime("%m/%d/%Y %H:%M:%S"), endt.strftime("%m/%d/%Y %H:%M:%S")])
-    print(f"Wind WAVES downloaded: wind_variables:")
+    print("Wind WAVES downloaded: wind_variables:")
     print(wind_variables)
     waves_data = get_data(f'E_VOLTAGE_{datatype}')
 
@@ -293,7 +287,7 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False):
     waves_psdarray = waves_data.y
 
     meta = {
-        'observatory': f"WIND",
+        'observatory': "WIND",
         'instrument': "WAVES",
         'detector': datatype,
         'freqs': waves_freqs_MHz,
@@ -463,7 +457,7 @@ if __name__=="__main__":
 
 
     # running this shows why fitfreqs needs to be in logspace.
-    #  if fitfreqs is in logspace then theres an even distribution of points between low freqs and highfreqs
+    #  if fitfreqs is in logspace then there's an even distribution of points between low freqs and highfreqs
     # xx = np.logspace(np.log10(freqfitmin), np.log10(freqfitmax), num=300)
     # xx2 = np.linspace(freqfitmin,freqfitmax, num=300 )
     #
@@ -852,7 +846,7 @@ if __name__=="__main__":
 
     axes[0].set_ylabel("Frequency (MHz)")
 
-    # # by default y-axis low to hight flip so moving away fro sun with time
+    # # by default y-axis low to height flip so moving away from sun with time
     axes[0].set_ylim(reversed(axes[0].get_ylim()))
     axes[1].set_ylim(reversed(axes[1].get_ylim()))
     axes[2].set_ylim(reversed(axes[2].get_ylim()))
@@ -1008,7 +1002,7 @@ if __name__=="__main__":
             print(f"Saved results: {savedfilepath}")
 
         else:
-            print(f"Missing frequencies in one of the spacecraft. Poor fit of the radio burst.")
+            print("Missing frequencies in one of the spacecraft. Poor fit of the radio burst.")
     if backbone == True:
         if (np.array_equal(fitfreqs, fitfreqs_waves_BB) and np.array_equal(fitfreqs,fitfreqs_swaves_a_BB) and np.array_equal(fitfreqs, fitfreqs_swaves_b_BB)):
             typeIII_BB = ({
@@ -1034,4 +1028,4 @@ if __name__=="__main__":
             print(f"Saved results: {savedfilepath}")
 
         else:
-            print(f"Missing frequencies in one of the spacecraft. Poor fit of the radio burst.")
+            print("Missing frequencies in one of the spacecraft. Poor fit of the radio burst.")
