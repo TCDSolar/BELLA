@@ -14,8 +14,8 @@ BayEsian LocaLisation Algorithm - BELLA
 .. image:: https://img.shields.io/badge/powered%20by-SolarMAP-orange
     :target: https://pypi.org/project/solarmap/
     :alt: Powered by SolarMAP Badge
-    
-    
+
+
 BELLA uses Bayesian statistics to Localise sources of EM emission within one astronomical unit of the Sun.
 
 Features:
@@ -42,13 +42,13 @@ Features:
     density_models: support file with density models and plasma physics functions.
 
 
-Contributions and comments are welcome using Github at: 
+Contributions and comments are welcome using Github at:
 https://github.com/TCDSolar/BELLA_Multilateration/
 
 Please note that BELLA requires:
 
 - PyMC3
-- SunPy 
+- SunPy
 - Astropy
 - Solarmap
 - Kapteyn
@@ -68,7 +68,7 @@ You must install virtual environments with python 3.8.
 Install BELLA Type III Fitter
 --------------------------------
 
-1 - Make a virtual env: 
+1 - Make a virtual env:
 
 .. code-block:: bash
 
@@ -296,7 +296,7 @@ Usage
 
     - A file with the uncertainty bg results should be available in **PATH/TO/Multilaterate/Data/YYYY_MM_dd/bg/**
 
-    - If the showfigure=True then your ouput should look like:
+    - If the showfigure=True then your output should look like:
 
     .. image:: ./Figures_readme/bayes_positioner_map_median_-250_250_-250_250_10_10_3.jpg
         :align: center
@@ -377,7 +377,7 @@ The function "triangulate()" (soon to be multilaterate) found in bayes_positione
     - cores=4 is the maximum pymc3 will allow. run cores=0 if triangulate is already running in a parallel process.
     - chains=4. Generally recommended to use 4 chains.
     - t_cadence=60. It is recommended to use a cadence that is equal or slightly worse than the instruments cadence. Otherwise divergences may occur.
-    - N_SAMPLES=2000. The number of samples and tunning values are 2000 because a larger number becomes computationally expensive. Tuning values and Samples are chosen to be equal but this is not necessary. Change if you need to.
+    - N_SAMPLES=2000. The number of samples and tuning values are 2000 because a larger number becomes computationally expensive. Tuning values and Samples are chosen to be equal but this is not necessary. Change if you need to.
 
 
 

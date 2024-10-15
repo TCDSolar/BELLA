@@ -249,5 +249,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,macos,windows,linux
 
-
-
+.idea
+_version.py

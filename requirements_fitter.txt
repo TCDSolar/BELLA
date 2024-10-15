@@ -1,8 +1,0 @@
-Cython==3.0.5
-numpy==1.22
-h5py==3.10.0
-solarmap==0.0.7
-maser4py[all]
-lxml==4.9.3
-zeep
-drms==0.7.0
