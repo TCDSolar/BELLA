@@ -2,7 +2,7 @@ import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
 
 # Point to the multilaterate directory if running from different directory
-#sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA/Scripts/Multilaterate')
+#sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA/Scripts/multilaterate')
 
 # Local imports
 # from bayesian_tracker import *

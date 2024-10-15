@@ -1,6 +1,6 @@
 import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
-sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA/Scripts/Multilaterate')
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA/Scripts/multilaterate')
 import bella_plotter as bplot
 # import bayes_positioner as bp
 

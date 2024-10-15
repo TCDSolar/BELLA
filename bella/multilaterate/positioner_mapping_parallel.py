@@ -1,6 +1,6 @@
 import sys
 # caution: path[0] is reserved for script path (or '' in REPL)
-# IF running from a different directory, point to the Multilaterate directory with bayes_positioner.py file
+# IF running from a different directory, point to the multilaterate directory with bayes_positioner.py file
 #sys.path.insert(1, 'PATH/TO/Multilateratefolder')
 import bayes_positioner as bp
 import numpy as np

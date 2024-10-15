@@ -1,8 +1,7 @@
-import cdflib
 import datetime as dt
 from radiospectra.spectrogram import Spectrogram
 import astropy.units as u
-from sunpy.net import Fido, attrs as a
+from sunpy.net import attrs as a
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from astropy.visualization import ImageNormalize, PercentileInterval
@@ -62,7 +61,6 @@ plt.rcParams.update({'font.family': "Times New Roman"})
 #     return rpw_spectro_sfu
 
 def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
-    import spacepy.time as spt
     from spacepy import pycdf
     print("Opening RPW data with pycdf")
     cdf = pycdf.CDF(cdf_file_path)
