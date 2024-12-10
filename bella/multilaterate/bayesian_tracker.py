@@ -1,7 +1,6 @@
 
 # Standard Library imports
 import os
-import sys
 # General
 import logging
 import datetime as dt
@@ -17,11 +16,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pymc3 as pm
 import solarmap
-# Local imports
-from bayes_positioner import *
 from scipy.ndimage import median_filter
 
 from astropy.constants import R_sun, au, c
+
+# Local imports
+import sys
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+from bella.multilaterate.bayes_positioner import triangulate
 
 
 @contextmanager
@@ -52,7 +54,6 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplots
 
         x_true = np.array([x1 * R_sun.value, y1 * R_sun.value])  # true source position (m)
         v_true = c.value  # speed of light (m/s)
-        t0_true = 100  # source time. can be any constant, as long as it is within the uniform distribution prior on t0
         d_true = np.linalg.norm(stations - x_true, axis=1)
         t1_true = d_true / v_true  # true time of flight values
         # t_obs = t1_true-t0_true# true time difference of arrival values
@@ -72,7 +73,7 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplots
         # print(f"t1_pred: {t1_pred}")
         # print(f"stations: {stations}")
 
-        if traceplotsave == True:
+        if traceplotsave is True:
             traceplotpath = f"./traceplots/{date_str}/traceplot_{xrange[0]}_{xrange[1]}_{yrange[0]}_{yrange[1]}_{xres}_{yres}"
             mkdirectory(traceplotpath)
 
@@ -96,12 +97,11 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres, cores=1, traceplots
         res = np.array([delta_obs, np.nan, np.nan])
         tloop1 = dt.datetime.now()
 
-    except:
-        delta_obs = 200
-        print(f"SIM FAILED at P({x1},{y1}), SKIPPED")
-        res = np.array([delta_obs, x1, y1])
+
+    except Exception as e:
+        print(f"Error at P({x1},{y1}): {str(e)}")
+        res = np.array([600, x1, y1])  # Fallback error handling
         tloop1 = dt.datetime.now()
-        pass
 
     tloopinseconds = (tloop1 - tloop0).total_seconds()
     print(f"Time Loop : {tloop1 - tloop0}   :   {tloopinseconds}s   ")
@@ -128,8 +128,9 @@ def parallel_tracker(freq,t_obs, stations ):
         res = np.array([xy, np.nan, np.nan])
 
         tloop1 = dt.datetime.now()
-    except:
+    except Exception as e:
         xy = 0
+        print(f"ERROR: {e}")
         print(f"SIM FAILED at Freq = {freq} MHz, SKIPPED")
         res = np.array([xy, freq])
         tloop1 = dt.datetime.now()
@@ -178,12 +179,12 @@ def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, save
     ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
-    if savefigure == True:
+    if savefigure is True:
         figdir = f"{figdir}/{date_str}"
         mkdirectory(figdir)
         plt.savefig(figdir+f"/bayes_positioner_map_{xmapaxis[0]}_{xmapaxis[-1]}_{ymapaxis[0]}_{ymapaxis[-1]}_{xres}_{yres}_{N_STATIONS}.jpg", bbox_inches='tight', pad_inches=0.01, dpi=300)
 
-    if showfigure == True:
+    if showfigure is True:
         plt.show(block=False)
     else:
         plt.close(fig)
@@ -208,7 +209,7 @@ def savetrackedtypeiii(results, dir="./Data/", date_str="date", profile="PROFILE
        title = f"TRACKING_{date_str}_results_{N_STATIONS}stations_{profile}.pkl"
 
 
-    direct = mkdirectory(dir)
+    mkdirectory(dir)
 
     stringpath = dir+f'{title}'
     with open(stringpath, 'wb') as outp:

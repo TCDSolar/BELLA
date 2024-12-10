@@ -61,7 +61,7 @@ class BayesianTOAPositioner:
 
         # assert correct number of observations
         if len(toa) != len(stations):
-            raise Exception("ERROR: number of observations must match number of stations! (%i, %i)"%(len(toa), len(stations)))
+            raise Exception(f"ERROR: number of observations must match number of stations! ({len(toa)}, {len(stations)})")
 
         # assert max toa is not larger than t_lim
         if np.max(toa) > t_lim:
@@ -167,7 +167,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         print(summary)
 
 
-    if traceplot==True:
+    if traceplot is True:
         # trace plot
         left = 0.04  # the left side of the subplots of the figure
         right = 0.972  # the right side of the subplots of the figure
@@ -331,7 +331,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         ax[3, 1].set_ylim([t_sampled-2.9*t_sd_sampled, t_sampled+2.9*t_sd_sampled])
         # plt.show(block=False)
 
-        if savetraceplot == True:
+        if savetraceplot is True:
             t0 = times[0]
             if traceplotdir=="":
                 direct = mkdirectory("./Traceplots/")
@@ -345,7 +345,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
                 print(f"saved {direct}/traceplot_{traceplotfn}")
 
 
-        if showplot==True:
+        if showplot is True:
             plt.show(block=False)
         else:
             plt.close()
@@ -370,7 +370,7 @@ def triangulate(coords, times,t_cadence=60,v_sd=3E5, chains=4, cores=4, N_SAMPLE
         plt.xlabel(r"'HEE - X / $R_{\odot}$'")
         plt.ylabel(r"'HEE - Y / $R_{\odot}$'")
         # plt.savefig("bayes_positioner_result2.jpg", bbox_inches='tight', pad_inches=0.01, dpi=300)
-        if showplot==True:
+        if showplot is True:
             plt.show(block=False)
         else:
             plt.close()

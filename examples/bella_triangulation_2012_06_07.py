@@ -11,8 +11,11 @@ import numpy as np
 import pymc3 as pm
 # General
 import solarmap
-from bayes_positioner import *
-from bayesian_tracker import *
+import sys
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+
+from bella.multilaterate.bayes_positioner import triangulate
+from bella.multilaterate.bayesian_tracker import loadtypeiii, savetrackedtypeiii
 
 # Standard Library imports
 from astropy.constants import R_sun
@@ -131,14 +134,14 @@ if __name__ == "__main__":
 
         tloop0 = dt.datetime.now()
         check = False
-        while check == False:
+        while check is False:
             try:
                 # connect
                 mu, sd, t1_pred, trace, summary, t_emission_fromtrace, v_analysis = triangulate(stations, typeIII_times[i_freq], t_cadence=60, cores=4, progressbar=True, report=0, plot=0,traceplot=True, savetraceplot=True, traceplotdir=f'{date_str}', traceplotfn=f'{i_freq}.jpg')
                 check = True
-            except:
-                print("MULTILATERATION FAILED, most likely by divergance, try again")
-                pass
+            except Exception as e:
+                print(f"ERROR: {e}, try again")
+
 
         tloop1 = dt.datetime.now()
         dtloop = tloop1-tloop0

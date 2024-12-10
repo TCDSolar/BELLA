@@ -16,12 +16,12 @@ import astropy.units as u
 from astropy.constants import R_sun, au
 from astropy.time import Time
 
-r_sun = R_sun.value
-AU=au.value
 from radiospectra.spectrogram import Spectrogram  # in the process of updating old spectrogram
 
 from sunpy.net import attrs as a
 
+r_sun = R_sun.value
+AU=au.value
 
 ##########################################################################
 #            Functions to LOAD SC dyn spectra
@@ -91,7 +91,8 @@ def waves_spec(start, endt,datatype="RAD1", bg_subtraction=False, lighttravelshi
     return waves_spec
 
 def local_waves_spec_l2_60s(file, datatype='RAD1', kind='SMEAN', bg_subtraction=False, lighttravelshift=0):
-    from read_wi_wa_l2_60s_data import read_l2_60s  # This file can be found at https://cdpp-archive.cnes.fr/
+    from bella.type_III_fitter.read_wi_wa_l2_60s_data import \
+        read_l2_60s  # This file can be found at https://cdpp-archive.cnes.fr/
     header, data = read_l2_60s(file)
 
     frequencies = data['FKHZ']
@@ -320,13 +321,13 @@ def solo_rpw_hfr(filepath):
     # V3-V1=6, B_MF=7, HF_V1-V2=9, HF_V2-V3=10, HF_V3-V1=11)
     sensor = rpw_l2_hfr.varget('SENSOR_CONFIG')
     freq_uniq = np.unique(rpw_l2_hfr.varget('FREQUENCY'))  # frequency channels list
-    sample_time = rpw_l2_hfr.varget('SAMPLE_TIME')
+    rpw_l2_hfr.varget('SAMPLE_TIME')
 
     agc1 = rpw_l2_hfr.varget('AGC1')
     agc2 = rpw_l2_hfr.varget('AGC2')
 
-    flux_density1 = rpw_l2_hfr.varget('FLUX_DENSITY1')
-    flux_density2 = rpw_l2_hfr.varget('FLUX_DENSITY2')
+    rpw_l2_hfr.varget('FLUX_DENSITY1')
+    rpw_l2_hfr.varget('FLUX_DENSITY2')
 
     rpw_l2_hfr.close()
     # l2_cdf_file.close()
@@ -420,7 +421,7 @@ def check_cadence(times, plot=True, method="mode", title=""):
         time_idx.append(times[i].datetime)
 
 
-    if plot==True:
+    if plot is True:
         plt.figure()
         ax = plt.gca()
         plt.plot_date(time_idx, dtime, ".")

@@ -188,7 +188,7 @@ def marsis_spectra(file_path, quickplot=False, histogram=[], lighttravelshift=0)
     }
     mars_spec = Spectrogram(mars_spec_bg.T, meta)    # Generates radiospectra spectrogram
 
-    if quickplot == True:
+    if quickplot is True:
         mars_mm_h = np.percentile(mars_spec.data, [histogram[0], histogram[1]])  # histogram levels
 
         fig, axes = plt.subplots(1, 1, sharex=True, figsize=(10, 10))

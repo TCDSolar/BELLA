@@ -204,7 +204,7 @@ if __name__=="__main__":
     plt.show(block=False)
 
     data = [rpw_AGC1, rpw_AGC2]
-    if savedata == True:
+    if savedata is True:
         directory = mkdirectory("solo_data/RPW/")
         with open(f'{directory}rpw_extracted_radiospectra_{YYYY}{MM:02}{dd:02}.pkl', 'wb') as output_file:
             pickle.dump(data, output_file)

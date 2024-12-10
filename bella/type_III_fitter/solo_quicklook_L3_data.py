@@ -1,6 +1,5 @@
 import datetime as dt
 
-import dynspec
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from radiospectra.spectrogram import Spectrogram
@@ -11,10 +10,10 @@ from astropy.visualization import ImageNormalize, PercentileInterval
 
 from sunpy.net import attrs as a
 
+from bella.type_III_fitter import dynspec
+
 plt.rcParams.update({'font.size': 22})
 plt.rcParams.update({'font.family': "Times New Roman"})
-
-
 
 # def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
 #     #CDFLIB reads Epoch inccorrectly. DO NOT USE CDFLIB with solo data
@@ -70,18 +69,18 @@ def open_rpw_l3(cdf_file_path, bg_subtraction=False, lighttravelshift=0):
     cdf = pycdf.CDF(cdf_file_path)
     epoch = cdf["Epoch"]
     frequency = cdf["FREQUENCY"]
-    background = cdf["BACKGROUND"]
-    sensor_config = cdf["SENSOR_CONFIG"]
-    channel = cdf["CHANNEL"]
-    timing = cdf["TIMING"]
-    quality_flag = cdf["QUALITY_FLAG"]
-    interpol_flags = cdf["INTERPOL_FLAG"]
-    psd_v2 = cdf["PSD_V2"]
-    psd_flux = cdf["PSD_FLUX"]
+    cdf["BACKGROUND"]
+    cdf["SENSOR_CONFIG"]
+    cdf["CHANNEL"]
+    cdf["TIMING"]
+    cdf["QUALITY_FLAG"]
+    cdf["INTERPOL_FLAG"]
+    cdf["PSD_V2"]
+    cdf["PSD_FLUX"]
     psd_sfu = cdf["PSD_SFU"]
-    lbl1_sc_pos_hci = cdf["LBL1_SC_POS_HCI"]
-    sc_pos_hci = cdf["SC_POS_HCI"]
-    rep1_sc_pos_hci = cdf["REP1_SC_POS_HCI"]
+    cdf["LBL1_SC_POS_HCI"]
+    cdf["SC_POS_HCI"]
+    cdf["REP1_SC_POS_HCI"]
 
 
     epoch_dt = epoch[:]

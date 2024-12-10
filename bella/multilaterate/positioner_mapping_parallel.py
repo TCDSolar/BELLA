@@ -1,5 +1,4 @@
 import os
-import sys
 import math
 import logging
 import argparse
@@ -9,10 +8,6 @@ from math import radians
 from contextlib import contextmanager
 
 import arviz as az
-# caution: path[0] is reserved for script path (or '' in REPL)
-# IF running from a different directory, point to the multilaterate directory with bayes_positioner.py file
-#sys.path.insert(1, 'PATH/TO/Multilateratefolder')
-import bayes_positioner as bp
 import matplotlib
 import matplotlib.patheffects as PathEffects
 import matplotlib.pyplot as plt
@@ -27,6 +22,15 @@ from scipy.ndimage import median_filter
 from termcolor import colored
 
 from astropy.constants import R_sun, au, c
+
+# caution: path[0] is reserved for script path (or '' in REPL)
+# IF running from a different directory, point to the multilaterate directory with bayes_positioner.py file
+#sys.path.insert(1, 'PATH/TO/Multilateratefolder')
+
+import sys
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+
+import bella.multilaterate.bayes_positioner as bp
 
 
 @contextmanager
@@ -68,7 +72,6 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
 
         x_true = np.array([x1 * R_sun.value, y1 * R_sun.value])  # true source position (m)
         v_true = c.value  # speed of light (m/s)
-        t0_true = 100  # source time. can be any constant, as long as it is within the uniform distribution prior on t0
         d_true = np.linalg.norm(stations - x_true, axis=1)
         t1_true = d_true / v_true  # true time of flight values
         # t_obs = t1_true-t0_true# true time difference of arrival values
@@ -82,11 +85,11 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
 
         mu = results_out[0]
         sd = results_out[1]
-        t1_pred = results_out[2]
+        results_out[2]
         trace = results_out[3]
-        summary = results_out[4]
-        t_emission = results_out[5]
-        v_analysis = results_out[6]
+        results_out[4]
+        results_out[5]
+        results_out[6]
 
 
 
@@ -100,7 +103,7 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
         # print(f"t1_pred: {t1_pred}")
         # print(f"stations: {stations}")
 
-        if traceplotsave == True:
+        if traceplotsave is True:
             traceplotpath = f"./traceplots/{date_str}/traceplot_{xrange[0]}_{xrange[1]}_{yrange[0]}_{yrange[1]}_{xres}_{yres}"
             mkdirectory(traceplotpath)
 
@@ -117,7 +120,7 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
 
         # difference detected observed
         x_true = x_true / R_sun.value
-        xy = mu[0] / R_sun.value, mu[1] / R_sun.value
+        mu[0] / R_sun.value, mu[1] / R_sun.value
 
         #delta_obs = sqrt((xy[0] - x_true[0]) ** 2 + (xy[1] - x_true[1]) ** 2)           # Deltaobs = xy - x_true Deprecated
         delta_obs =  np.amax([sd[0]/R_sun.value , sd[1]/R_sun.value])               # Bayesian uncertainty. Pick the largest one.
@@ -129,8 +132,9 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
         print(f" P({x1},{y1}),  {colored('SUCCESS', 'green')}:  {res}")
 
 
-    except:
+    except Exception as e:
         delta_obs = 600
+        print(f"SIM ERROR: {e}")
         print(f"SIM {colored('FAILED', 'red')} at P({x1},{y1}), SKIPPED")
         res = np.array([delta_obs, x1, y1])
         tloop1 = dt.datetime.now()
@@ -146,9 +150,9 @@ def parallel_pos_map(x1,y1,stations,xrange,yrange,xres,yres,t_cadence=60, cores=
     return res
 
 def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, savefigure=False, showfigure=True, title="",figdir="./MapFigures", date_str="date", filename="fig.jpg"):
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
     fig, ax = plt.subplots(1,1,figsize=(8,8))
     plt.subplots_adjust(top=1, bottom=0)
@@ -179,12 +183,12 @@ def plot_map_simple(delta_obs, xmapaxis, ymapaxis, stations,vmin=0,vmax=30, save
     ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
-    if savefigure == True:
+    if savefigure is True:
         figdir = f"{figdir}/{date_str}"
         mkdirectory(figdir)
         plt.savefig(figdir+filename, bbox_inches='tight', pad_inches=0.01, dpi=300)
 
-    if showfigure == True:
+    if showfigure is True:
         plt.show(block=False)
     else:
         plt.close(fig)
@@ -217,9 +221,9 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
     sd = sd_vals/R_sun.value
 
 
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
 
     # PARKER SPIRAL
@@ -264,7 +268,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
         i+=1
 
 
-    if parker_spiral == True:
+    if parker_spiral is True:
         ax.plot(x_parker,y_parker,"k--")
         ax.plot(x_parker_plus,y_parker_plus,"k--", markersize=0.5)
         ax.plot(x_parker_minus,y_parker_minus,"k--")
@@ -280,7 +284,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
     # # ELLIPSES
     colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
-    if confidence ==True:
+    if confidence is True:
         i = 0
         ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
                                                            width=2 * sd[i, 0], height=2 * sd[i, 1],
@@ -305,12 +309,6 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
     # stelab.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='k')])
     # windlab = ax.text(stations[3,0], stations[3,1], "WIND", color="w",fontsize=22)
     # windlab.set_path_effects([PathEffects.withStroke(linewidth=1, foreground='k')])
-
-
-
-
-
-
 
 
     ax.set_aspect('equal')
@@ -340,12 +338,12 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
     ax.set_ylabel(r"'HEE - Y / $R_{\odot}$'", fontsize=22)
     ax.set_title(title, fontsize=22)
 
-    if savefigure == True:
+    if savefigure is True:
         figdir = f"{figdir}/{date_str}"
         mkdirectory(figdir)
         plt.savefig(figdir+filename, bbox_inches='tight', pad_inches=0.01, dpi=300)
 
-    if showfigure == True:
+    if showfigure is True:
         plt.show(block=False)
     else:
         plt.close(fig)
@@ -361,12 +359,12 @@ def plot_map_simple_withTracked_zoom(delta_obs, trackedtypeIII, xmapaxis, ymapax
     xy = xy_vals/R_sun.value
     tracked_freqs = trackedtypeIII.freq
     sd_vals = np.array(list(trackedtypeIII.sd))
-    sd = sd_vals/R_sun.value
+    sd_vals/R_sun.value
 
 
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
 
     # PARKER SPIRAL
@@ -418,7 +416,6 @@ def plot_map_simple_withTracked_zoom(delta_obs, trackedtypeIII, xmapaxis, ymapax
 
     im_track = ax.scatter(xy[:,0], xy[:,1],c = tracked_freqs, marker="s",edgecolors="w",cmap='plasma', s=250, label="TrackedBeam")
 
-    i = 0
     # ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 1], xy[i, 0]),
     #                                                    width=4 * sd[i, 1], height=4 * sd[i, 0],
     #                                                    angle=0., edgecolor=tracked_freqs, cmap='plasma', label="Posterior ($2\sigma$)", lw=1.5)
@@ -482,12 +479,12 @@ def plot_map_simple_withTracked_zoom(delta_obs, trackedtypeIII, xmapaxis, ymapax
     ax.indicate_inset_zoom(axins, edgecolor="black")
 
 
-    if savefigure == True:
+    if savefigure is True:
         figdir = f"{figdir}/{date_str}"
         mkdirectory(figdir)
         plt.savefig(figdir+filename, bbox_inches='tight', pad_inches=0.01, dpi=300)
 
-    if showfigure == True:
+    if showfigure is True:
         plt.show(block=False)
     else:
         plt.close(fig)
@@ -502,9 +499,9 @@ def savedata(delta_obs, xmapaxis, ymapaxis, stations, filename="output.pkl"):
     mkdirectory(directory)
 
 
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
     results  = [xmapaxis, ymapaxis, delta_obs, stations]
     with open(filename, 'wb') as outp:
@@ -640,11 +637,12 @@ if __name__ == "__main__":
         year = observation_date.year
     except ValueError:
         print("Invalid date format. Please use YYYY-MM-DD format.")
-    except:
-        print("No date provided.")
+    except Exception as e:
+        print(f"Warning. {e}, Date assigned to manual")
         day = 4
         month = 12
         year = 2021
+        print( f"Date assigned: {year}-{month:02d}-{day:02d}")
 
 
     date_str = f"{year}_{month:02d}_{day:02d}"
@@ -680,32 +678,43 @@ if __name__ == "__main__":
         if "wind" in spacecraft:
             windsc=True
             sc_buff.append("wind")
-        else:windsc=False
+        else:
+            windsc=False
+
         if "stereo_a" in spacecraft:
             steasc=True
             sc_buff.append("stereo_a")
-        else:steasc=False
+        else:
+            steasc=False
+
         if "stereo_b" in spacecraft:
             stebsc=True
             sc_buff.append("stereo_b")
-        else:stebsc=False
+        else:
+            stebsc=False
+
         if "solo" in spacecraft:
             solosc=True
             sc_buff.append("solo")
-        else:solosc=False
+        else:
+            solosc=False
+
         if "psp" in spacecraft:
             pspsc=True
             sc_buff.append("psp")
-        else:pspsc=False
+        else:
+            pspsc=False
+
         if "mex" in spacecraft:
             mexsc=True
             sc_buff.append("mex")
-        else:mexsc=False
+        else:
+            mexsc=False
 
         spacecraft = sc_buff
         print(f"Spacecraft selected: {spacecraft}")
 
-    sc_str=""
+    sc_str = ""
     if windsc:
         sc_str += '_WIND'
     if steasc:
@@ -725,9 +734,9 @@ if __name__ == "__main__":
         theta_sc = int(sys.argv[1])
 
         print(f"theta_sc:    {theta_sc}")
-        L1 = [0.99*(au/R_sun),0]
-        L4 = [(au/R_sun)*np.cos(radians(60)),(au/R_sun)*np.sin(radians(60))]
-        L5 = [(au/R_sun)*np.cos(radians(60)),-(au/R_sun)*np.sin(radians(60))]
+        L1 = [0.99*(au/R_sun), 0]
+        L4 = [(au/R_sun)*np.cos(radians(60)), (au/R_sun)*np.sin(radians(60))]
+        L5 = [(au/R_sun)*np.cos(radians(60)), -(au/R_sun)*np.sin(radians(60))]
         # ahead = [(au/R_sun)*np.cos(radians(theta_sc)),(au/R_sun)*np.sin(radians(theta_sc))]
         # behind = [(au/R_sun)*np.cos(radians(theta_sc)),-(au/R_sun)*np.sin(radians(theta_sc))]
 
@@ -744,7 +753,7 @@ if __name__ == "__main__":
     elif date_str == "test":
         stations_rsun = np.array([[200, 200], [-200, -200], [-200, 200], [200, -200]])
     elif date_str == "manual":
-        stations_rsun = np.array([[45.27337378, 9.90422281],[-24.42715218,-206.46280171],[ 212.88183411,0.]])
+        stations_rsun = np.array([[45.27337378, 9.90422281], [-24.42715218, -206.46280171], [212.88183411, 0.]])
         date_str = f"{year}_{month:02d}_{day:02d}"
     else:
         solarsystem = solarmap.get_HEE_coord(date=[year, month, day], objects=spacecraft)
@@ -801,7 +810,7 @@ if __name__ == "__main__":
     else:
         runserver = False
     ###############################################################
-    if runserver == True:
+    if runserver is True:
         # Settings for server (Make sure runserver=True)
         runsimulation = True
         run_failed_again = False  # Keep False. NEEDS DEBUGGING> FAILS
@@ -834,10 +843,10 @@ if __name__ == "__main__":
         filename = f"./Data/BG_Maps/{date_str}/results_{xrange[0]}_{xrange[-1]}_{yrange[0]}_{yrange[-1]}_{xres}_{yres}_{N_STATIONS}stations{sc_str}_{cadence}s.pkl"
 
     # Does not make sense to save data or run flagged points if simulation is off.
-    if runsimulation == False:
+    if runsimulation is False:
         run_savedata = False
         run_failed_again = False
-        if run_loaddata == True:
+        if run_loaddata is True:
             #Check if data exists
             isExist = os.path.exists(filename)
             if not isExist:
@@ -853,7 +862,7 @@ if __name__ == "__main__":
                         run_savedata = True
                 run_loaddata = False
 
-    if runsimulation == True:
+    if runsimulation is True:
         # Check if data exists
         isExist = os.path.exists(filename)
         if isExist:
@@ -875,7 +884,7 @@ if __name__ == "__main__":
     """  ---------------------------------------------------------------------   """
     """  ------------------------- Simulation --------------------------------   """
     """  ---------------------------------------------------------------------   """
-    if runsimulation == True:
+    if runsimulation is True:
         compcost0 = dt.datetime.now()
         coresforloop = multiprocessing.cpu_count()
 
@@ -908,26 +917,26 @@ if __name__ == "__main__":
 
 
     """  ------------------------ Save Data ----------------------------------   """
-    if run_savedata == True:
+    if run_savedata is True:
         savedata(delta_obs, xmapaxis, ymapaxis, stations_rsun, filename=filename)
     """  ---------------------------------------------------------------------   """
 
 
     """  ------------------------ Load Data ----------------------------------   """
-    if run_loaddata == True:
+    if run_loaddata is True:
         xmapaxis, ymapaxis, delta_obs, stations_rsun = loaddata(filename)
     """  ---------------------------------------------------------------------   """
 
 
 
     """  ------------------------ PLOT Data ----------------------------------   """
-    if run_plotdata == True:
+    if run_plotdata is True:
         fname = f"/bayes_positioner_map_{xmapaxis[0]}_{xmapaxis[-1]}_{ymapaxis[0]}_{ymapaxis[-1]}_{xres}_{yres}_{N_STATIONS}_30s.jpg"
         plot_map_simple(delta_obs*2, xmapaxis, ymapaxis, stations_rsun, vmin=np.min(delta_obs*2), vmax=np.max(delta_obs*2), showfigure=True, savefigure=True, date_str=date_str, filename=fname)
     """  ---------------------------------------------------------------------   """
 
     """  ------------------------ Median Filter ---------------------------   """
-    if run_median_filter == True:
+    if run_median_filter is True:
     # from scipy.ndimage import median_filter as medfil
         delta_obs2 = delta_obs*2   # 2std for 95% confidence intervalm
         median_filter_image = medfil(delta_obs2, size=(6,6))

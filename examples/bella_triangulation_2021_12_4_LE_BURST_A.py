@@ -13,8 +13,12 @@ import datetime as dt
 # Parallel processing imports
 import multiprocessing
 
-import bayes_positioner as bp
-import bayesian_tracker as btrack
+import sys
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+
+import bella.multilaterate.bayes_positioner as bp
+import bella.multilaterate.bayesian_tracker as btrack
+
 import numpy as np
 # Third Party imports
 # BAYESIAN IMPORTS
@@ -86,18 +90,36 @@ if __name__ == "__main__":
         for sc in args.spacecraft:
             spacecraft.append(sc.lower())
 
-        if "wind" in spacecraft:windsc=True
-        else:windsc=False
-        if "stereo_a" in spacecraft:steasc=True
-        else:steasc=False
-        if "stereo_b" in spacecraft:stebsc=True
-        else:stebsc=False
-        if "solo" in spacecraft:solosc=True
-        else:solosc=False
-        if "psp" in spacecraft:pspsc=True
-        else:pspsc=False
-        if "mex" in spacecraft:mexsc=True
-        else:mexsc=False
+        if "wind" in spacecraft:
+            windsc=True
+        else:
+            windsc=False
+
+        if "stereo_a" in spacecraft:
+            steasc=True
+        else:
+            steasc=False
+
+        if "stereo_b" in spacecraft:
+            stebsc=True
+        else:
+            stebsc=False
+
+        if "solo" in spacecraft:
+            solosc=True
+        else:
+            solosc=False
+
+        if "psp" in spacecraft:
+            pspsc=True
+        else:
+            pspsc=False
+
+        if "mex" in spacecraft:
+            mexsc=True
+        else:
+            mexsc=False
+
 
         print(f"Spacecraft selected: {spacecraft}")
 
@@ -285,14 +307,14 @@ if __name__ == "__main__":
 
         tloop0 = dt.datetime.now()
         check = False
-        while check == False:
+        while check is False:
             try:
                 # connect
                 mu, sd, t1_pred, trace, summary, t_emission_fromtrace, v_analysis = bp.triangulate(stations, typeIII_times[i_freq], t_cadence=60, v_sd=0.0001*c.value, cores=4, progressbar=True, report=0, plot=0,traceplot=True, savetraceplot=True, traceplotdir=f'{sc_str}_{profile}_{note}', traceplotfn=f'{i_freq}.jpg')
                 check = True
-            except:
-                print("MULTILATERATION FAILED, most likely by divergance, try again")
-                pass
+            except Exception as e:
+                print(f"ERROR: {e}, try again")
+
 
         tloop1 = dt.datetime.now()
         dtloop = tloop1-tloop0

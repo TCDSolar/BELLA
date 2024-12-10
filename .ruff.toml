@@ -5,6 +5,7 @@ exclude = [
   "__pycache__",
   "build",
   "bella/version.py",
+  "bella/type_III_fitter/read_wi_wa_l2_60s_data.py",
 ]
 
 [lint]
@@ -32,6 +33,8 @@ extend-ignore = [
 ]
 "__init__.py" = ["E402", "F401", "F403"]
 "test_*.py" = ["B011", "D", "E402", "PGH001", "S101"]
+"bella/multilaterate/bayes_positioner.py" = ["F841"]
+
 
 [lint.pydocstyle]
 convention = "numpy"

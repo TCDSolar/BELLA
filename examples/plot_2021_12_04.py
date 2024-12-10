@@ -7,7 +7,11 @@ sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work
 # from joblib import Parallel, delayed
 import multiprocessing
 
-import bella_plotter as bplot
+
+import sys
+sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+
+import bella.multilaterate.bella_plotter as bplot
 import matplotlib.pyplot as plt
 import numpy as np
 import pymc3 as pm
@@ -236,6 +240,6 @@ if __name__ == "__main__":
     ax.tick_params(axis='both', which='major', labelsize=18)
     plt.show(block = False)
 
-    if savefigs == True:
+    if savefigs is True:
         dir = bplot.mkdirectory("./Figures/")
         plt.savefig(dir+'BELLA_map_4spacecraft.png', dpi=300)

@@ -8,8 +8,6 @@ from matplotlib import pyplot as plt
 import astropy.units as u
 from astropy.time import Time
 
-plt.rcParams.update({'font.size': 22})
-plt.rcParams.update({'font.family': "Times New Roman"})
 # import pickle
 import argparse
 
@@ -27,6 +25,13 @@ from radiospectra.spectrogram import Spectrogram  # in the process of updating o
 # AU=au.value
 #
 from sunpy.net import attrs as a
+
+
+
+
+plt.rcParams.update({'font.size': 22})
+plt.rcParams.update({'font.family': "Times New Roman"})
+
 
 
 def backSub(data, percentile=1):

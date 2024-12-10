@@ -9,9 +9,6 @@ from matplotlib.colors import LogNorm
 import astropy.units as u
 from astropy.time import Time
 
-plt.rcParams.update({'font.size': 22})
-plt.rcParams.update({'font.family': "Times New Roman"})
-# import pickle
 import argparse
 
 import pyspedas  # pip install git+https://github.com/STBadman/pyspedas
@@ -29,6 +26,8 @@ from radiospectra.spectrogram import Spectrogram  # in the process of updating o
 #
 from sunpy.net import attrs as a
 
+plt.rcParams.update({'font.size': 22})
+plt.rcParams.update({'font.family': "Times New Roman"})
 
 def backSub(data, percentile=1):
     """ Background subtraction:

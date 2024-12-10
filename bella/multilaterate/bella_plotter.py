@@ -1,5 +1,4 @@
 import os
-import sys
 import math
 import logging
 import datetime as dt
@@ -12,7 +11,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
 import solarmap
-from bayes_positioner import *
 from matplotlib import cm
 from matplotlib.ticker import FormatStrFormatter, LogFormatter
 # import pymc3 as pm
@@ -21,6 +19,10 @@ from scipy.ndimage import median_filter
 import astropy.units as u
 # import arviz as az
 from astropy.constants import R_sun, au
+
+import sys
+# sys.path.insert(1, '/Users/canizares/Library/CloudStorage/OneDrive-Personal/Work/0_PhD/Projects/BELLA_Projects/TCDSolarBELLA')
+# from bella.multilaterate.bayes_positioner import *
 
 plt.rcParams.update({'font.size': 18})
 plt.rcParams["font.family"] = "Times New Roman"
@@ -81,9 +83,9 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
     sd = sd_vals/R_sun.value
 
 
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
 
     # PARKER SPIRAL
@@ -128,7 +130,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
         i+=1
 
 
-    if parker_spiral == True:
+    if parker_spiral is True:
         ax.plot(x_parker,y_parker,"k--")
         ax.plot(x_parker_plus,y_parker_plus,"k--", markersize=0.5)
         ax.plot(x_parker_minus,y_parker_minus,"k--")
@@ -144,7 +146,7 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
 
     # # ELLIPSES
     colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
-    if confidence ==True:
+    if confidence is True:
         i = 0
         ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
                                                            width=2 * sd[i, 0], height=2 * sd[i, 1],
@@ -204,12 +206,12 @@ def plot_map_simple_withTracked(delta_obs, trackedtypeIII, xmapaxis, ymapaxis, s
     ax.set_ylabel(r"HEE - Y (R$_\odot$)", fontsize=22)
     ax.set_title(title, fontsize=22)
 
-    if savefigure == True:
+    if savefigure is True:
         figdir = f"{figdir}/{date_str}"
         mkdirectory(figdir)
         plt.savefig(figdir+filename, bbox_inches='tight', pad_inches=0.01, dpi=300)
 
-    if showfigure == True:
+    if showfigure is True:
         plt.show(block=False)
     else:
         plt.close(fig)
@@ -225,9 +227,9 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
                    linecolor = "k"):
 
 
-    xres = xmapaxis[1]-xmapaxis[0]
-    yres = ymapaxis[1]-ymapaxis[0]
-    N_STATIONS = len(stations)
+    xmapaxis[1]-xmapaxis[0]
+    ymapaxis[1]-ymapaxis[0]
+    len(stations)
 
     # fig, ax = plt.subplots(1,1,figsize=(11,11))
     # plt.subplots_adjust(top=1, bottom=0)
@@ -258,7 +260,7 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     ax.set_ylim(ymapaxis[0], ymapaxis[-1])
 
     # fig.subplots_adjust(right=0.9)
-    if showcolorbar == True:
+    if showcolorbar is True:
         cbar_ax = fig.add_axes(cbar_axes) # [left, bottom, width, height]
         fig.colorbar(im_0, cax=cbar_ax)
         cbar_ax.set_ylabel(r'BELLA uncertainty (R$_\odot$)', fontsize=18)
@@ -269,7 +271,7 @@ def plot_bella_map(fig,ax,delta_obs, xmapaxis, ymapaxis, stations,
     if "sun" in objects:
         ax.plot(0, 0, 'yo', label="Sun", markersize=10, markeredgecolor ='k')
 
-    if showlegend == True:
+    if showlegend is True:
         ax.legend(loc=1)
 
     ax.set_xlabel(r"HEE - X  (R$_\odot$)", fontsize=20)
@@ -299,7 +301,7 @@ def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar
     # colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
 
 
-    if confidence ==True:
+    if confidence is True:
         i = 0
         ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
                                                            width=2*sd[i, 0], height=2*sd[i, 1],
@@ -316,7 +318,7 @@ def plot_tracked_typeIII(fig, ax, trackedtypeIII, confidence=False, showcolorbar
 
     im_track = ax.scatter(xy[:,0], xy[:,1],c = tracked_freqs, cmap=cmap, marker=marker, edgecolors=edgecolors, s=s, label=label, norm=norm,zorder=zorder)
 
-    if showcolorbar == True:
+    if showcolorbar is True:
         if cbar_sep_ax:
             cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
             formatter = LogFormatter(10, labelOnlyBase=False)
@@ -354,7 +356,7 @@ def plot_typeIII_sim(fig, ax, trackedtypeIII, confidence=False, showcolorbar=Tru
     colors = cmap_func(np.linspace(0, 1.0, len(xy)))
 
     # colors = cm.turbo(list(np.linspace(0,1.0,len(xy))))
-    if confidence ==True:
+    if confidence is True:
         i = 0
         ell_track_uncertainty = matplotlib.patches.Ellipse(xy=(xy[i, 0], xy[i, 1]),
                                                            width=2*sd[i, 0], height=2*sd[i, 1],
@@ -373,10 +375,10 @@ def plot_typeIII_sim(fig, ax, trackedtypeIII, confidence=False, showcolorbar=Tru
             ax.add_patch(ell_track_uncertainty)
 
     if showtruesources:
-        im_true = ax.scatter(xy_true[:,0], xy_true[:,1], cmap=cmap, marker="o", edgecolors=edgecolors, c="yellow", s=s, label="True Sources", norm=norm,zorder=zorder-1)
+        ax.scatter(xy_true[:,0], xy_true[:,1], cmap=cmap, marker="o", edgecolors=edgecolors, c="yellow", s=s, label="True Sources", norm=norm,zorder=zorder-1)
     im_track = ax.scatter(xy[:,0], xy[:,1], cmap=cmap, marker=marker, edgecolors=edgecolors, s=s, label=label, norm=norm,zorder=zorder)
 
-    if showcolorbar == True:
+    if showcolorbar is True:
         cbar_ax2 = fig.add_axes(cbar_axes) # [left, bottom, width, height]
         formatter = LogFormatter(10, labelOnlyBase=False)
         fig.colorbar(im_track, cax=cbar_ax2, format=formatter)
@@ -720,7 +722,7 @@ if __name__ == "__main__":
     ax.tick_params(axis='both', which='major', labelsize=18)
     plt.show(block = False)
 
-    if savefigs == True:
+    if savefigs is True:
         dir = mkdirectory("./Figures/")
         if trackedfile[-11:-4] != 'SCATTER':
             plt.savefig(dir+'BELLA_map0.png', dpi=300)
@@ -817,7 +819,7 @@ if __name__ == "__main__":
     # plt.show(block = False)
     #
     # savefigs = True
-    # if savefigs == True:
+    # if savefigs is True:
     #     plt.savefig('/Users/canizares/OneDrive/Work/0_PhD/Projects/2012_06_07_WSTASTB/BELLA_map_mosaic.png', dpi=300)
     #
     #

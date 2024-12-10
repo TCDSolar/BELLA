@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 
 import astropy.constants as const
 import astropy.units as u
+from scipy.optimize import root_scalar
 
 matplotlib.rcParams.update({'font.size': 26})
 ###
@@ -14,7 +15,7 @@ def Ne_leblanc(rho) :
     In: rho - heliocentric distance in R_sun
     Out : Density in per cc
     '''
-    alpha_1,alpha_2,alpha_3 = 3.3e5,4.1e6,8.0e7
+    alpha_1, alpha_2, alpha_3 = 3.3e5, 4.1e6, 8.0e7
     return alpha_1*rho**-2 + alpha_2*rho**-4 + alpha_3*rho**-6
 
 def Ne_leblanc_deriv(rho) :
@@ -22,7 +23,7 @@ def Ne_leblanc_deriv(rho) :
     In: rho - heliocentric distance in R_sun
     Out : delta Density in per cc/ delta rho in R_sun
     '''
-    alpha_1,alpha_2,alpha_3 = 3.3e5,4.1e6,8.0e7
+    alpha_1, alpha_2, alpha_3 = 3.3e5, 4.1e6, 8.0e7
     return -2*alpha_1*rho**-3 + -4*alpha_2*rho**-5 + -6*alpha_3*rho**-7
 
 def Ne_saito(r) :
@@ -54,17 +55,17 @@ def Ne_parker(r):
     In : r # Heliocentric radius in R_S
     Out : n_e : heliospheric electorn density in cm^-3
     '''
-    m1,m2,m3 = 1.39e6,3e8,4.8e9
-    alpha,beta,gamma = 2.3,6,14
+    m1, m2, m3 = 1.39e6, 3e8, 4.8e9
+    alpha, beta, gamma = 2.3, 6, 14
     return m1/r**alpha+m2/r**beta+m3/r**gamma
 
 
-def Ne_mann(r,N0 = 8.775e8, D = 9.88):
+def Ne_mann(r, N0=8.775e8, D=9.88):
     # r in rsun
     n_e_model_MANN = N0 * np.exp(D * (1 / r - 1))  # Mann & Klassen (2005)
     return n_e_model_MANN
 
-def Ne_allen(r, a0=2.99,a1=1.55,a2=0.036):
+def Ne_allen(r, a0=2.99, a1=1.55, a2=0.036):
     # r in rsun
     n_e_model_ALLEN = 1e8 * ( a0*np.power(r,-16.) +  a1*np.power(r,-6.) + a2*np.power(r,-1.5))  # Allen
     return n_e_model_ALLEN
@@ -82,7 +83,6 @@ def parker(hr, f, a):
     """ [1] for fundamental backbone, [2] for Harmonic Backbone.
          f: frequency (MHz).
          a: fold (1 - 4, [1] for quiet Sun, [4] for active regions). """
-    hr=0
     n_e = Ne(f)*a
     r = R_parker(n_e, calibration_factor=1)
 
@@ -102,38 +102,40 @@ def Ne_nk(r,fold=1):
 
 
 def Ne_parker_deriv(r) :
-    m1,m2,m3 = 1.39e6,3e8,4.8e9
-    alpha,beta,gamma = 2.3,6,14
+    m1, m2, m3 = 1.39e6, 3e8, 4.8e9
+    alpha, beta, gamma = 2.3, 6, 14
     return -alpha*m1/r**(alpha+1) - beta*m2/r**(beta+1) - gamma*m3/r**(gamma+1)
 
-def Ne_helios(r) :
+def Ne_helios(r):
     # https://link.springer.com/content/pdf/10.1007%2FBF00173965.pdf
     n0 = 6.1*u.cm**-3
-    if not isinstance(r,u.quantity.Quantity) : r *=  u.R_sun
+    if not isinstance(r, u.quantity.Quantity):
+        r *= u.R_sun
     return (n0 * (const.au.to('m')/r.to('m'))**2.1).to("cm^-3")
 
-def Ne_moncuquet(r) :
+def Ne_moncuquet(r):
     # https://iopscience.iop.org/article/10.3847/1538-4365/ab5a84/pdf
     n0 = 10*u.cm**-3
-
     return (n0 * (const.au.to('m')/r.to('m'))**2).to("cm^-3")
 
 # Plasma Frequency in MHz
 def f_pe(Ne) :
-    if not isinstance(Ne,u.quantity.Quantity) : Ne *=  u.cm**-3
-    return ((80.6*Ne.to("cm^-3").value)**0.5/1e3 )*u.MHz
+    if not isinstance(Ne, u.quantity.Quantity):
+        Ne *= u.cm**-3
+    return ((80.6*Ne.to("cm^-3").value)**0.5/1e3)*u.MHz
 
 
 def Ne(f_pe) :
-    if not isinstance(f_pe,u.quantity.Quantity) : f_pe *=  u.MHz
+    if not isinstance(f_pe,u.quantity.Quantity):
+        f_pe *=  u.MHz
     return f_pe.to("kHz").value**2/80.6*u.cm**-3
 
 def R_moncuquet(Ne) :
-    if not isinstance(Ne,u.quantity.Quantity) : Ne *=  u.cm**-3
+    if not isinstance(Ne,u.quantity.Quantity):
+        Ne *= u.cm**-3
     n0 = 10*u.cm**-3
     return (n0/Ne)**0.5 * u.au
 
-from scipy.optimize import root_scalar
 
 
 def find_radius_parker(target_ne, calibration_factor=1):
@@ -152,7 +154,7 @@ def find_radius_leblanc(target_ne, calibration_factor=1):
 
 def R_parker(target_ne, calibration_factor=1):
     target_ne = target_ne.value
-    sol = root_scalar(find_radius_parker(target_ne,calibration_factor), bracket=[1, 215], method='brentq')
+    sol = root_scalar(find_radius_parker(target_ne, calibration_factor), bracket=[1, 215], method='brentq')
     if sol.converged:
         return sol.root
     else:
@@ -168,7 +170,7 @@ def R_saito(target_ne, calibration_factor=1):
 
 def R_leblanc(target_ne, calibration_factor=1):
     target_ne = target_ne.value
-    sol = root_scalar(find_radius_leblanc(target_ne,calibration_factor), bracket=[1, 215], method='brentq')
+    sol = root_scalar(find_radius_leblanc(target_ne, calibration_factor), bracket=[1, 215], method='brentq')
     if sol.converged:
         return sol.root
     else:
@@ -240,4 +242,4 @@ if __name__ == "__main__":
     print(f"Parker : {Ne_parker(r)} cm^{-3}")
     print(f"Allen : {Ne_allen(r)} cm^{-3}")
 
-    print(f"BELLA : {Ne_allen(r, *popt)} cm^{-3}")
+    # print(f"BELLA : {Ne_allen(r, *popt)} cm^{-3}")
